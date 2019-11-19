@@ -1,0 +1,3 @@
+11.19
+I planned to process our data using deduce tool, use one of the dataset(fibre), however found the CSV file is not a standard CSV file, so preprocess the data first and make sure the file is standard csv file, also adjust the format of the data, correct some errors, such as some contents are written in a same cell.
+Also read the adjusted csv file and create a dictionary of records
