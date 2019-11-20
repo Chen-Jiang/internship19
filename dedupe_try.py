@@ -13,19 +13,6 @@ import optparse
 import dedupe
 from unidecode import unidecode
 
-# optp = optparse.OptionParser()
-# optp.add_option('-v', '--verbose', dest='verbose', action='count',
-#                 help='Increase verbosity (specify multiple times for more)'
-#                 )
-# (opts, args) = optp.parse_args()
-# log_level = logging.WARNING
-# if opts.verbose:
-#     if opts.verbose == 1:
-#         log_level = logging.INFO
-#     elif opts.verbose >= 2:
-#         log_level = logging.DEBUG
-# logging.getLogger().setLevel(log_level)
-
 ## files
 input_file = 'experian_fibre.csv'
 # input_file = 'copy.csv'
@@ -171,12 +158,17 @@ for (cluster_id, cluster) in enumerate(clustered_dupes):
 
 singleton_id = cluster_id + 1
 
+## write output_file
 with open(output_file, 'w') as f_output, open(input_file) as f_input:
     writer = csv.writer(f_output)
     reader = csv.reader(f_input)
 
     heading_row = next(reader)
+
+    ## add some columns
+    ## represent the similarity score
     heading_row.insert(0, 'confidence_score')
+    ## the same ID represents the same record
     heading_row.insert(0, 'Cluster ID')
     canonical_keys = canonical_rep.keys()
     for key in canonical_keys:
@@ -188,6 +180,7 @@ with open(output_file, 'w') as f_output, open(input_file) as f_input:
         # blocks = row.items().split("|")
         blocks = row[0].split("|")
         row_id = int(blocks[0])
+        ## make sure if the record is in the same record pairs list
         if row_id in cluster_membership:
             cluster_id = cluster_membership[row_id]["cluster id"]
             canonical_rep = cluster_membership[row_id]["canonical representation"]
@@ -196,6 +189,7 @@ with open(output_file, 'w') as f_output, open(input_file) as f_input:
             for key in canonical_keys:
                 row.append(canonical_rep[key].encode('utf8'))
         else:
+            ## if the record is unique
             row.insert(0, None)
             row.insert(0, singleton_id)
             singleton_id += 1
