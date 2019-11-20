@@ -1,3 +1,11 @@
 11.19
 I planned to process our data using deduce tool, use one of the dataset(fibre), however found the CSV file is not a standard CSV file, so preprocess the data first and make sure the file is standard csv file, also adjust the format of the data, correct some errors, such as some contents are written in a same cell.
 Also read the adjusted csv file and create a dictionary of records
+
+11.20
+Work I have done:
+1. I planned to experiment the algorithm in csv-example folder provided by dedupe, get familiar with the example algorithm;
+2. I have preprocessed the raw data yesterday, and today based on yester's worl, I transfered the OrderedDict to teh regular dictionary format so that the data can be dealed with by the algorithm;
+3. According to the algorithm, after preprocessing the raw data, try to use active learning to train the dataset;
+Problems I met:
+1. do not have good understanding of the algorithm provided by the example, expecially about the add cluster part (in this part, several columns are added to the input file), so still need to work more on the experiment.
