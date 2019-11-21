@@ -11,5 +11,8 @@ Problems I met:
 1. do not have good understanding of the algorithm provided by the example, expecially about the add cluster part (in this part, several columns are added to the input file), so still need to work more on the experiment.
 
 11.21
+Work I have done:
+1. run yesterday's code on sample data and original data;
+2. when running code on original there are some bugs, and worked on fixing bugs;
 Problems I met:
 1. How to evaluate the performance of the result? In the provided examples, there is a file with manual labels so that the results can be evaluated. How can we evaluate our results?
