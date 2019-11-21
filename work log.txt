@@ -12,7 +12,8 @@ Problems I met:
 
 11.21
 Work I have done:
-1. run yesterday's code on sample data and original data;
-2. when running code on original there are some bugs, and worked on fixing bugs, such as ZeroDivisionError: float division;
+1. see dedupe's document and have better understanding of algorithm;
+2. run yesterday's code on sample data and original data;
+3. when running code on original there are some bugs, and worked on fixing bugs, such as ZeroDivisionError: float division; Still fixing...not finished
 Problems I met:
 1. How to evaluate the performance of the result? In the provided examples, there is a file with manual labels so that the results can be evaluated. How can we evaluate our results?
