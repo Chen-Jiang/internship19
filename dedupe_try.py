@@ -14,8 +14,8 @@ import dedupe
 from unidecode import unidecode
 
 ## files
-input_file = 'experian_fibre.csv'
-# input_file = 'copy.csv'
+# input_file = 'experian_fibre.csv'
+input_file = 'copy.csv'
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
@@ -48,6 +48,8 @@ def preProcessFile(fileName):
                             ## delete all the "" of the words
                             singleData[keys[i].strip("\"")] = values[i].strip("\"")
                             i += 1
+                        elif not values[i].strip().strip("\"").strip().strip("-").strip():
+                            values[i] = "null"
                         ## some contents are written in a single cell
                         ## separate into different cells
                         else:
@@ -91,11 +93,11 @@ else:
     fields = [
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
-        {'field':'address_line','type': 'Exact','has missing' : True},
+        {'field':'address_line','type': 'String','has missing' : True},
         {'field':'city','type': 'String','has missing' : True},
         {'field':'postcode','type': 'Exact','has missing' : True},
         {'field':'country','type': 'String','has missing' : True},
-        {'field':'email','type': 'Exact','has missing' : True},
+        {'field':'email','type': 'String','has missing' : True},
         {'field':'phone_main','type': 'Exact','has missing' : True},
         {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
@@ -103,13 +105,13 @@ else:
     # Create a new deduper object and pass our data model to it.
     deduper = dedupe.Dedupe(fields)
 
-    #deduper.sample(data, 15000)
+    # deduper.sample(data, 20)
 
     ## if training_file has existed, we load the file
     ## else we train the data
     if os.path.exists(training_file):
         print('reading labeled examples from ', training_file)
-        with open(training_file, 'rb') as f:
+        with open(training_file, 'rb', encoding = "ISO-8859-1") as f:
             deduper.prepare_training(data, f)
     else:
         deduper.prepare_training(data)
@@ -130,7 +132,7 @@ else:
         deduper.writeSettings(sf)
 
 ## set threshold
-threshold = deduper.threshold(data, recall_weight=2)
+threshold = deduper.threshold(data, recall_weight=1.5)
 
 print('clustering...')
 ## return the same records found by dedupe
@@ -159,7 +161,7 @@ for (cluster_id, cluster) in enumerate(clustered_dupes):
 singleton_id = cluster_id + 1
 
 ## write output_file
-with open(output_file, 'w') as f_output, open(input_file) as f_input:
+with open(output_file, 'w') as f_output, open(input_file, encoding = "ISO-8859-1") as f_input:
     writer = csv.writer(f_output)
     reader = csv.reader(f_input)
 
