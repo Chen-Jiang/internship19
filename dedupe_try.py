@@ -1,4 +1,4 @@
-## this is to use dedupe to analyse data experiment
+## this is to use dedupe to analyse data
 
 from collections import defaultdict
 from collections import OrderedDict
@@ -14,8 +14,8 @@ import dedupe
 from unidecode import unidecode
 
 ## files
-# input_file = 'experian_fibre.csv'
-input_file = 'copy.csv'
+input_file = 'experian_fibre.csv'
+# input_file = 'copy.csv'
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
@@ -44,20 +44,22 @@ def preProcessFile(fileName):
                     i = 0
                     ## to delete all the ",,," at the end of each row, len(keys)-1
                     while i < len(keys)-1:
-                        if "," not in values[i]:
-                            ## delete all the "" of the words
-                            singleData[keys[i].strip("\"")] = values[i].strip("\"")
-                            i += 1
-                        elif not values[i].strip().strip("\"").strip().strip("-").strip():
+                        if not values[i].strip("\"").strip("-").strip():
                             values[i] = "null"
-                        ## some contents are written in a single cell
-                        ## separate into different cells
                         else:
-                            contents = values[i].split(",")
-                            for j in range(len(contents)):
+                            if "," not in values[i]:
                                 ## delete all the "" of the words
-                                singleData[keys[i].strip("\"")] = contents[j].strip("\"")
-                                i = i + 1
+                                # lower all the words to make sure all these letters are capital insensible
+                                singleData[keys[i].strip("\"")] = values[i].lower().strip("\"")
+                                i += 1
+                                ## some contents are written in a single cell
+                                ## separate into different cells
+                            else:
+                                contents = values[i].split(",")
+                                for j in range(len(contents)):
+                                ## delete all the "" of the words
+                                    singleData[keys[i].strip("\"")] = contents[j].lower().strip("\"")
+                                    i = i + 1
                     ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
                     id = int(singleData["unique_id"])
                     ## transfer orderedDict to regular dictionary
@@ -85,7 +87,7 @@ data = preProcessFile(input_file)
 if os.path.exists(settings_file):
     print('reading from', settings_file)
     with open(settings_file, 'rb') as f:
-        ## StaticDedupe is method used to load the settings_file
+        ## StaticDedupe is a method used to load the settings_file
         deduper = dedupe.StaticDedupe(f)
 ## need training
 else:
@@ -105,7 +107,7 @@ else:
     # Create a new deduper object and pass our data model to it.
     deduper = dedupe.Dedupe(fields)
 
-    # deduper.sample(data, 20)
+    # deduper.sample(data, 20,0.5,None)
 
     ## if training_file has existed, we load the file
     ## else we train the data
@@ -114,7 +116,7 @@ else:
         with open(training_file, 'rb', encoding = "ISO-8859-1") as f:
             deduper.prepare_training(data, f)
     else:
-        deduper.prepare_training(data)
+        deduper.prepare_training(data, None,15000,0.5,None)
 
     ## Start Active learning
     print('starting active labeling...')
@@ -133,22 +135,27 @@ else:
 
 ## set threshold
 threshold = deduper.threshold(data, recall_weight=1.5)
+print('# threshold',threshold)
 
 print('clustering...')
-## return the same records found by dedupe
+## return the same records found by dedupe, when the score is bigger than threshold
 clustered_dupes = deduper.match(data, threshold)
 
 print('# duplicate sets', len(clustered_dupes))
 
 # ## Writing Results
 
-# Write our original data back out to a CSV with a new column called
-# 'Cluster ID' which indicates which records refer to each other.
+# Write our original data back out to a CSV with new columns
+# 'Cluster ID' indicates which records refer to each other.
+# 'confidence_score' indicates the matching scores between several records
 
 cluster_membership = {}
 cluster_id = 0
 for (cluster_id, cluster) in enumerate(clustered_dupes):
+    print(cluster_id)
+    print(cluster)
     id_set, scores = cluster
+    ## cluster_d should be the whole record if it is included in the clustered_dupes
     cluster_d = [data[c] for c in id_set]
     canonical_rep = dedupe.canonicalize(cluster_d)
     for record_id, score in zip(id_set, scores):
@@ -161,7 +168,7 @@ for (cluster_id, cluster) in enumerate(clustered_dupes):
 singleton_id = cluster_id + 1
 
 ## write output_file
-with open(output_file, 'w') as f_output, open(input_file, encoding = "ISO-8859-1") as f_input:
+with open(output_file, 'w') as f_output, open('csvFormat.csv', encoding = "ISO-8859-1") as f_input:
     writer = csv.writer(f_output)
     reader = csv.reader(f_input)
 
