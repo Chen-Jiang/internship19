@@ -24,3 +24,8 @@ Work I have done:
 2. fix some code, such as add the low() to make sure identify the same contents more precisely
 Problems I met:
 1. How to evaluate the result of the algorithm?
+
+11.25
+Work i have done:
+1. use google to learn about TDD, what is TDD, and how to implement TDD
+2. find several examples from google to practice using TDD when programming, language is Python
