@@ -1,4 +1,4 @@
-# 11.25 TDD understanding
+# TDD Notes
 
 1. A kind of software developmemt process. Test first, then programming, test-first programming
 2. why use this type of development?
