@@ -1,0 +1,13 @@
+# 11.25 TDD understanding
+
+1. Test first, then coding, test-first programming
+2. Before programming, we need to set test class first and think about what the situations will be, what mistakes we may met, what threshold may be and such problems. It seems that by setting these test cases, we help ourselves set different targets on this part of programming. When we started to write code about these functions, we will know that what functions these code has satisfied. More importantly, when errors happen, we will know where the mistake comes from, which reduces a lot of time, we do not need to find several hours to locate the problems. (Especially when our code are merged to the project’s code, it is hard to find mistakes)
+3. TDD circle：
+	1. Write a new test class, indlucing all the test cases
+	2. Run the test class make sure no mistakes in compile
+	3. Start programming, when finish coding, run tests, if not all the tests pass, debug code and refactoring code at the same time;
+	4. If all the tests has passed, you can also refactoring your code and write new test cases.
+4. Before programming, we write test cases, to make test cases are sufficient, we need to consider the situations of the users, the user stories, use cases, which will reminds us that there are several Preconditions, threshold and some mistake possibilities we need to consider into our code.
+5. Check the functionality of our code by writing test cases before programming. We write different test cases about different features of our programming and also consider some special circumstances such as can not find file,  the format of input is not correct to make sure not only our code can work and also our code can have some correspondings under some special situations
+6. References:
+	1. https://blog.csdn.net/wangjianan7357/article/details/81592109
