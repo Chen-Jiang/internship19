@@ -1,25 +1,13 @@
-# TDD Notes
+# 11.25 TDD understanding
 
-1. A kind of software developmemt process. Test first, then programming, test-first programming
-2. why use this type of development?
-   make sure the code satisfies all the functions,(has no bugs before merged to the whole project);
-   every unit we apply TDD to is much smaller than a big project, when bugs happens, it is easy to find and fix;
-   more readable
+1. Test first, then coding, test-first programming
+2. Before programming, we need to set test class first and think about what the situations will be, what mistakes we may met, what threshold may be and such problems. It seems that by setting these test cases, we help ourselves set different targets on this part of programming. When we started to write code about these functions, we will know that what functions these code has satisfied. More importantly, when errors happen, we will know where the mistake comes from, which reduces a lot of time, we do not need to find several hours to locate the problems. (Especially when our code are merged to the project’s code, it is hard to find mistakes)
 3. TDD circle：
 	1. Write a new test class, indlucing all the test cases
-	2. Run the test class make sure no mistakes during compile
-	3. Start programming, when finish coding, run tests, debug code and refactoring code until all the tests pass,this process needs to be repeated until all tests pass;
-4. In TDD, We use the format of test cases to check all the functions of the code as required. Before programming, we need to set all test cases about the functions we are going to program. We need to write test cases as sufficient as possible so there are several requirements we need to consider when writing test cases. 
-	1. The first is the preconditions(use cases) of this function, such preconditions can let us know which step does the user stay, and what does he want to do, we will have more clear view on the functions and possible mistakes. 
-	2. The second is the specific requirements of the function. 
-		1. The first is : we need to set different small test cases by separating the requirements of the function, then we write different small test cases to test different aspect of the function, every test case just satisfy one small function, so that if all the tests pass, all the function has been satisfied. 
-		2. The second is: we need to consider some possible errors, such as can not find file,  the format of input is not correct......in our code we need to consider how to deal with the situation so that our code can still work when such errors happens.
-
-
-
-
-5. References:
+	2. Run the test class make sure no mistakes in compile
+	3. Start programming, when finish coding, run tests, if not all the tests pass, debug code and refactoring code at the same time;
+	4. If all the tests has passed, you can also refactoring your code and write new test cases.
+4. Before programming, we write test cases, to make test cases are sufficient, we need to consider the situations of the users, the user stories, use cases, which will reminds us that there are several Preconditions, threshold and some mistake possibilities we need to consider into our code.
+5. Check the functionality of our code by writing test cases before programming. We write different test cases about different features of our programming and also consider some special circumstances such as can not find file,  the format of input is not correct to make sure not only our code can work and also our code can have some correspondings under some special situations
+6. References:
 	1. https://blog.csdn.net/wangjianan7357/article/details/81592109
-	2. https://code.likeagirl.io/in-tests-we-trust-tdd-with-python-af69f47e6932
-	3. https://stackabuse.com/test-driven-development-with-pytest/
-	4. https://en.wikipedia.org/wiki/Test-driven_development
