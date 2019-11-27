@@ -35,3 +35,21 @@ Work I have done:
 1. do some TDD exercises
 2. finish the TDD notes
 3. google about how to evaluate the result of machine learning algorithm
+
+11.27
+Work I have done:
+1. Attend the Intro to TDD meeting
+2. Google and write down how to evaluate performance of unsupervised learning, below is my thoughts(I will also upload the file to git):
+Methods:
+
+1. Transfer unsupervised learning to supervised learning.
+Choose some instances randomly from the original dataset (such as choose 10 percent of total number of original data, and including repeated and unrepeated instances). Then give them labels manually, and then divide them into training data and test data. Apply the algorithm to training data and test data and to see the performance, when the performance is good (use standard such as Precision……), then apply the algorithm to the all data.
+
+2. Run unsupervised learning first, then verify the results
+Choose some instances randomly, and give them labels manually and save to another file. Run the unlabeled original data, then compare the algorithm’s result to data which has been labeled.
+
+3. Assumption: among our data, the duplicate data accounts for a small portion
+Run the unlabeled, original data first, then we will get the results about what are duplicate data. Then we pay attention to those who have been predicted duplicate. We compare the similarity of fields of different data(such as regular expression, I assume that a lot of information will be same or similar), to improve the performance, we can set different weights to different fields according to their importance.
+
+4. Try Ensemble learning
+Use some unsupervised learning as base learner so that combine the results from different methods.
