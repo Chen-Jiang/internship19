@@ -32,8 +32,8 @@ Work I have done:
 
 11.26
 Work I have done:
-1. do some TDD exercises
-2. finish the TDD notes
+1. do some TDD exercises, please see the PyTDDProject folder.
+2. finish the TDD notes, please go to PyTDDProject/
 3. google about how to evaluate the result of machine learning algorithm
 
 11.27
