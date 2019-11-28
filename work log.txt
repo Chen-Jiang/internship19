@@ -58,3 +58,10 @@ Use some unsupervised learning as base learner so that combine the results from 
 Work I have done:
 1. Also googled about the effectiveness of unsupervised learning, and add one more method to the question, also update on the txt file, here is the link: https://github.com/Chen-Jiang/internship19/blob/master/how%20to%20evaluate%20performance.txt
 2. See context about string metrics technology, see difflib, Levenshtein, Sørensen, and Jaccard similarity values for two string, and also write some small experiments using these methods to see the result, the experiments are listed in the String Similarity/env_1 folder.
+
+11.29
+Work I have done:
+1. set up the plan for next progress:
+  I have run active learning and got the result, about how to evaluate and improve the result, still needs to do, here is the experiment plan:
+    1. Try the third method and the second method first. Use this method to evaluate the result of previous result and compare the difference between the two evaluation;
+    2. If the result is not very accurate, think about and try different methods to improve the result? Can the fifth method to be used? or just use the first method, transforming the unsupervised method to supervised method?
