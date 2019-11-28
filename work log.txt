@@ -53,3 +53,8 @@ Run the unlabeled, original data first, then we will get the results about what 
 
 4. Try Ensemble learning
 Use some unsupervised learning as base learner so that combine the results from different methods.
+
+11.28
+Work I have done:
+1. Also googled about the effectiveness of unsupervised learning, and add one more method to the question, also update on the txt file, here is the link: https://github.com/Chen-Jiang/internship19/blob/master/how%20to%20evaluate%20performance.txt
+2. See context about string metrics technology, see difflib, Levenshtein, Sørensen, and Jaccard similarity values for two string, and also write some small experiments using these methods to see the result, the experiments are listed in the String Similarity/env_1 folder.
