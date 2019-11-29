@@ -65,3 +65,4 @@ Work I have done:
   I have run active learning and got the result, about how to evaluate and improve the result, still needs to do, here is the experiment plan:
     1. Try the third method and the second method first. Use this method to evaluate the result of previous result and compare the difference between the two evaluation;
     2. If the result is not very accurate, think about and try different methods to improve the result? Can the fifth method to be used? or just use the first method, transforming the unsupervised method to supervised method?
+2. Started to write python script about evaluate the result of the active learning, not finished, the newest code is uploaded: evaluate.py
