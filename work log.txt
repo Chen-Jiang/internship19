@@ -70,5 +70,6 @@ Work I have done:
 12.02
 Work I have done:
 1. Continue writing Python code for evaluating the result of the active learning. Today i mainly use the second method i mentioned in the txt file: use the result as the data, and use String metrics method to evaluate the similarity between differet records, the specific code uploaded to the evaluate.py file;
+2. About the specific method, I first use single field, then use combined fields
 Problems I met:
-1. there are two types of same records, the first one is the block has only two "same" records, the second has more than two same records, about the latter one, I am thinking about how to evaluate them with String metrics.
+1. There are two types of same records, the first one is the block has only two "same" records, the second has more than two same records, about the latter one, I am thinking about how to evaluate them with String metrics.
