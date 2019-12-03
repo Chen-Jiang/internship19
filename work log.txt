@@ -1,40 +1,30 @@
-11.19
-I planned to process our data using deduce tool, use one of the dataset(fibre), however found the CSV file is not a standard CSV file, so preprocess the data first and make sure the file is standard csv file, also adjust the format of the data, correct some errors, such as some contents are written in a same cell.
-Also read the adjusted csv file and create a dictionary of records
-
-11.20
+12.03
 Work I have done:
-1. I planned to experiment the algorithm in csv-example folder provided by dedupe, get familiar with the example algorithm;
-2. I have preprocessed the raw data yesterday, and today based on yester's worl, I transfered the OrderedDict to teh regular dictionary format so that the data can be dealed with by the algorithm;
-3. According to the algorithm, after preprocessing the raw data, try to use active learning to train the dataset;
+1. Finish using the second method to evaluate the result coming from the active learning:
+    I extracted all the similiar records and used String similarity metrics with different weights to compare records which are classified same, then use the ratio of correctly classified pairs as the final performance of the active learning, accoring to the current method and the result, the correct_pair_rate is about 0.925.
+    the update code has been uploaded: evaluate.py
 Problems I met:
-1. do not have good understanding of the algorithm provided by the example, expecially about the add cluster part (in this part, several columns are added to the input file), so still need to work more on the experiment.
+1. When dealing with the same record blocks with more than two records, it is more complicate to conpare records than two-records blocks. There are several situations inside blocks with more tha 2 records: all of them are correct; several them are correct; none of them are correct......Now I just separate the big blocks into 2-records block and compare the two records every time, then I use the correct_pair_rate in replace of correct_record_rate to evaluate the performance.
 
-11.21
+12.02
 Work I have done:
-1. see dedupe's document and have better understanding of algorithm;
-2. run yesterday's code on sample data and original data;
-3. when running code on original there are some bugs, and worked on fixing bugs, such as ZeroDivisionError: float division; Still fixing...not finished
+1. Continue writing Python code for evaluating the result of the active learning. Today i mainly use the second method i mentioned in the txt file: use the result as the data, and use String metrics method to evaluate the similarity between differet records, the specific code uploaded to the evaluate.py file;
+2. About the specific method, I first use single field, then use combined fields
 Problems I met:
-1. How to evaluate the performance of the result? In the provided examples, there is a file with manual labels so that the results can be evaluated. How can we evaluate our results?
+1. There are two types of same records, the first one is the block has only two "same" records, the second has more than two same records, about the latter one, I am thinking about how to evaluate them with String metrics.
 
-11.22
+11.29
 Work I have done:
-1. fix the bug and apply the algorithm to the original dataset, get some results
-2. fix some code, such as add the low() to make sure identify the same contents more precisely
-Problems I met:
-1. How to evaluate the result of the algorithm?
+1. set up the plan for next progress:
+  I have run active learning and got the result, about how to evaluate and improve the result, still needs to do, here is the experiment plan:
+    1. Try the third method and the second method first. Use this method to evaluate the result of previous result and compare the difference between the two evaluation;
+    2. If the result is not very accurate, think about and try different methods to improve the result? Can the fifth method to be used? or just use the first method, transforming the unsupervised method to supervised method?
+2. Started to write python script about evaluate the result of the active learning, not finished, the newest code is uploaded: evaluate.py
 
-11.25
+11.28
 Work I have done:
-1. use google to learn about TDD, what is TDD, and how to implement TDD
-2. find several examples from google to practice using TDD when programming, language is Python
-
-11.26
-Work I have done:
-1. do some TDD exercises, please see the PyTDDProject folder.
-2. finish the TDD notes, please go to PyTDDProject/TDD notes.txt
-3. google about how to evaluate the result of machine learning algorithm
+1. Also googled about the effectiveness of unsupervised learning, and add one more method to the question, also update on the txt file, here is the link: https://github.com/Chen-Jiang/internship19/blob/master/how%20to%20evaluate%20performance.txt
+2. See context about string metrics technology, see difflib, Levenshtein, Sørensen, and Jaccard similarity values for two string, and also write some small experiments using these methods to see the result, the experiments are listed in the String Similarity/env_1 folder.
 
 11.27
 Work I have done:
@@ -54,30 +44,40 @@ Run the unlabeled, original data first, then we will get the results about what 
 4. Try Ensemble learning
 Use some unsupervised learning as base learner so that combine the results from different methods.
 
-11.28
+11.26
 Work I have done:
-1. Also googled about the effectiveness of unsupervised learning, and add one more method to the question, also update on the txt file, here is the link: https://github.com/Chen-Jiang/internship19/blob/master/how%20to%20evaluate%20performance.txt
-2. See context about string metrics technology, see difflib, Levenshtein, Sørensen, and Jaccard similarity values for two string, and also write some small experiments using these methods to see the result, the experiments are listed in the String Similarity/env_1 folder.
+1. do some TDD exercises, please see the PyTDDProject folder.
+2. finish the TDD notes, please go to PyTDDProject/TDD notes.txt
+3. google about how to evaluate the result of machine learning algorithm
 
-11.29
+11.25
 Work I have done:
-1. set up the plan for next progress:
-  I have run active learning and got the result, about how to evaluate and improve the result, still needs to do, here is the experiment plan:
-    1. Try the third method and the second method first. Use this method to evaluate the result of previous result and compare the difference between the two evaluation;
-    2. If the result is not very accurate, think about and try different methods to improve the result? Can the fifth method to be used? or just use the first method, transforming the unsupervised method to supervised method?
-2. Started to write python script about evaluate the result of the active learning, not finished, the newest code is uploaded: evaluate.py
+1. use google to learn about TDD, what is TDD, and how to implement TDD
+2. find several examples from google to practice using TDD when programming, language is Python
 
-12.02
+11.22
 Work I have done:
-1. Continue writing Python code for evaluating the result of the active learning. Today i mainly use the second method i mentioned in the txt file: use the result as the data, and use String metrics method to evaluate the similarity between differet records, the specific code uploaded to the evaluate.py file;
-2. About the specific method, I first use single field, then use combined fields
+1. fix the bug and apply the algorithm to the original dataset, get some results
+2. fix some code, such as add the low() to make sure identify the same contents more precisely
 Problems I met:
-1. There are two types of same records, the first one is the block has only two "same" records, the second has more than two same records, about the latter one, I am thinking about how to evaluate them with String metrics.
+1. How to evaluate the result of the algorithm?
 
-12.03
+11.21
 Work I have done:
-1. Finish using the second method to evaluate the result coming from the active learning:
-    I extracted all the similiar records and used String similarity metrics with different weights to compare records which are classified same, then use the ratio of correctly classified pairs as the final performance of the active learning, accoring to the current method and the result, the correct_pair_rate is about 0.925.
-    the update code has been uploaded: evaluate.py
+1. see dedupe's document and have better understanding of algorithm;
+2. run yesterday's code on sample data and original data;
+3. when running code on original there are some bugs, and worked on fixing bugs, such as ZeroDivisionError: float division; Still fixing...not finished
 Problems I met:
-1. When dealing with the same record blocks with more than two records, it is more complicate to conpare records than two-records blocks. There are several situations inside blocks with more tha 2 records: all of them are correct; several them are correct; none of them are correct......Now I just separate the big blocks into 2-records block and compare the two records every time, then I use the correct_pair_rate in replace of correct_record_rate to evaluate the performance.
+1. How to evaluate the performance of the result? In the provided examples, there is a file with manual labels so that the results can be evaluated. How can we evaluate our results?
+
+11.20
+Work I have done:
+1. I planned to experiment the algorithm in csv-example folder provided by dedupe, get familiar with the example algorithm;
+2. I have preprocessed the raw data yesterday, and today based on yester's worl, I transfered the OrderedDict to teh regular dictionary format so that the data can be dealed with by the algorithm;
+3. According to the algorithm, after preprocessing the raw data, try to use active learning to train the dataset;
+Problems I met:
+1. do not have good understanding of the algorithm provided by the example, expecially about the add cluster part (in this part, several columns are added to the input file), so still need to work more on the experiment.
+
+11.19
+I planned to process our data using deduce tool, use one of the dataset(fibre), however found the CSV file is not a standard CSV file, so preprocess the data first and make sure the file is standard csv file, also adjust the format of the data, correct some errors, such as some contents are written in a same cell.
+Also read the adjusted csv file and create a dictionary of records
