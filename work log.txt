@@ -73,3 +73,11 @@ Work I have done:
 2. About the specific method, I first use single field, then use combined fields
 Problems I met:
 1. There are two types of same records, the first one is the block has only two "same" records, the second has more than two same records, about the latter one, I am thinking about how to evaluate them with String metrics.
+
+12.03
+Work I have done:
+1. Finish using the second method to evaluate the result coming from the active learning:
+    I extracted all the similiar records and used String similarity metrics with different weights to compare records which are classified same, then use the ratio of correctly classified pairs as the final performance of the active learning, accoring to the current method and the result, the correct_pair_rate is about 0.925.
+    the update code has been uploaded: evaluate.py
+Problems I met:
+1. When dealing with the same record blocks with more than two records, it is more complicate to conpare records than two-records blocks. There are several situations inside blocks with more tha 2 records: all of them are correct; several them are correct; none of them are correct......Now I just separate the big blocks into 2-records block and compare the two records every time, then I use the correct_pair_rate in replace of correct_record_rate to evaluate the performance.
