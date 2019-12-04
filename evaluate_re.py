@@ -23,7 +23,7 @@ def compare_two_records_with_re(all_same_records,fields,field_weights):
                 if "@" in all_same_records[j][fields[i]]:
                     # to avoid different email domains
                     email_name, domain = all_same_records[j][fields[i]].split("@")
-                    print(email_name)
+                    print("email_name", email_name)
                     field.append(email_name)
                 else:
                     field.append(all_same_records[j][fields[i]])
@@ -93,18 +93,19 @@ def compare_more_than_two_records_with_re(all_same_records,fields,field_weights)
                     if m == 7:
                         print(all_same_records[i][fields[m]])
                         print(all_same_records[j][fields[m]])
-                        if "@" in all_same_records[i][fields[m]]:
+                        if "@" in all_same_records[i][fields[m]] and "@" in all_same_records[j][fields[m]]:
+                            print(1)
                             email_name_i, domain_i = all_same_records[i][fields[m]].split("@")
-                            print(email_name_i)
-                            field.append(email_name_i)
-                        elif "@" not in all_same_records[i][fields[m]]:
-                            field.append(all_same_records[i][fields[m]])
-                        elif "@" in all_same_records[j][fields[m]]:
                             email_name_j, domain_j = all_same_records[j][fields[m]].split("@")
-                            print(email_name_j)
+                            field.append(email_name_i)
                             field.append(email_name_j)
-                        elif "@" not in all_same_records[j][fields[m]]:
+                            print(email_name_i)
+                            print(email_name_j)
+                        else:
+                            field.append(all_same_records[i][fields[m]])
                             field.append(all_same_records[j][fields[m]])
+                        print("email",field[0])
+                        print("email",field[1])
                     else:
                         field.append(all_same_records[i][fields[m]])
                         field.append(all_same_records[j][fields[m]])
