@@ -11,6 +11,7 @@ different regular expression result?
 def compare_two_records_with_re(all_same_records,fields,field_weights):
 
     print("start comparing with regular expression...")
+    print("len(all_same_records)", len(all_same_records))
 
     compare_score = 0
     num_of_correctly_classified_pair = 0
