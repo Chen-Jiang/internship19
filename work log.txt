@@ -1,3 +1,7 @@
+12.05
+Work I have done:
+1. Fix buds in the evaluate_re.py, when comparing the similarity between email addresses, remove the domain part, just compare the name of the address in case of different  
+
 12.04
 Work I have done:
 1. I checked Dedupe's documentation and found that in the active learning, they already use string metrics to calculate the similarity between different records, so I think maybe we can use another method to check the result, so I used regular expression to calculate similarity. use re.match() and re.search() method to find to what degree these tewo records are similar.
