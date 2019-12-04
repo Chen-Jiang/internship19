@@ -1,3 +1,9 @@
+12.04
+Work I have done:
+1. I checked Dedupe's documentation and found that in the active learning, they already use string metrics to calculate the similarity between different records, so I think maybe we can use another method to check the result, so I used regular expression to calculate similarity. use re.match() and re.search() method to find to what degree these tewo records are similar.
+2. the result from regular expression is higher than result from string metrics, I adjusted the weights of different fields, the regular expression result is about 0.95, while the string metrics result is about 0.89.
+3. Among the regular expression results I found that there is some records labeled "insimilar"(correct rate lecc than 0.5)should be similar, i revides code on the email field,(just extract the address name without the domain),has bugs, still fixing...the latest code uploaed as evaluate_re.py
+
 12.03
 Work I have done:
 1. Finish using the second method to evaluate the result coming from the active learning:
