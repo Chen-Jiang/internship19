@@ -1,6 +1,8 @@
 12.05
 Work I have done:
 1. Fix buds in the evaluate_re.py, when comparing the similarity between email addresses, remove the domain part, just compare the name of the address in case of different  
+2. Using active learning and try different number of training instances to see if the result has some improvement.(last time, I used about 25 instances each for positive and negative, this time i tried about 50 instances; the correct rate(according to my evaluate file)has some improvement, using string metrics, the correct rate increase from 0.89 to 0.93; using regular expression, the correct rate increases from 0.77 to 0.79)
+3. Started to write code to preprocess the another two files, hasn't finished, the newest code has uploaded.
 
 12.04
 Work I have done:
