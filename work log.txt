@@ -1,6 +1,11 @@
+12.06
+Work I have done:
+1. I am writing code about extract and preprocess data from another two original files. Still not finished. There are several situations,such as some special punctuation marks (\n) and some single records account for multiple cells. I am figuring these problems out.
+2. I am also revising the code of reading the first orinal file to make the file can be used on the three files
+
 12.05
 Work I have done:
-1. Fix buds in the evaluate_re.py, when comparing the similarity between email addresses, remove the domain part, just compare the name of the address in case of different  
+1. Fix bugs in the evaluate_re.py, when comparing the similarity between email addresses, remove the domain part, just compare the name of the address in case of different  
 2. Using active learning and try different number of training instances to see if the result has some improvement.(last time, I used about 25 instances each for positive and negative, this time i tried about 50 instances; the correct rate(according to my evaluate file)has some improvement, using string metrics, the correct rate increase from 0.89 to 0.93; using regular expression, the correct rate increases from 0.77 to 0.79)
 3. Started to write code to preprocess the another two files, hasn't finished, the newest code has uploaded.
 Problems I met:
