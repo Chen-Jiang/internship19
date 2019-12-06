@@ -49,9 +49,10 @@ def preProcessFile(fileName, revise_format_file):
 
             ## read original csv file, and read every row to a dictionary then write every dictionary to the new csv file
             with open(fileName, encoding = "ISO-8859-1") as f:
-                reader = csv.DictReader(f)
-
-                read_fibre_file(reader, writer, data)
+                reader = csv.DictReader(f, delimiter=",", lineterminator=",")
+                # all_records = {}
+                try(reader,writer,data)
+                # read_fibre_file(reader, writer, data)
 
         elif n1 == 'experian_neighbourly':
             ## set new csv file's headers (all the headers from the original files)
@@ -68,6 +69,166 @@ def preProcessFile(fileName, revise_format_file):
         file.close()
         return data
 
+def try(reader,writer,data):
+
+    for row in reader:
+        print("new row")
+
+        for (k,v) in row.items():
+            record_pair = []
+            values = v.split("|")
+            v_len = len(values)
+            k_len = 0
+
+            if k != None:
+                keys = k.split("|")
+                k_len = len(keys)
+
+            # situation 1: all the values have been extracted successfully
+            if v_len == k_len:
+                record_pair.append(v)
+            # situation2: just several values are extracted
+            else:
+                # when the length of values is less than keys', just check and
+                # revise it again and again
+                if len(values) < k_len:
+                    # situation1: have None as keys
+                    if None in row:
+                        print("has NONE")
+                        print(row[None])
+                        v += str(row[None]).strip("['").strip("']")
+                        values = v.split("|")
+
+                    if len(values) < k_len:
+                        # read the next line to get more information
+                        next_record = next(reader)
+                        for (k1,v1) in next_record.items():
+                            if "\n" in v1:
+                                print("has ")
+                                last, current = v1.split("\n")
+                                v += last
+                    # situation2: has \n in the value
+                    elif "\\n" in v:
+                        re1, re2 = v.split("\\n")
+                        record_pair.append(re1)
+                        record_pair.append(re2)
+                # situation3: has None and \n in the value
+
+
+
+
+
+
+
+
+            # put all the valid key-value pairs to dictionary
+            for item in record_pair:
+                values = item.split("|")
+                i = 0
+                while i < len(keys):
+                    singleData[keys[i].strip("\"")] = values[i].lower().strip("\"")
+                    i += 1
+                ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
+                id = int(singleData["unique_id"])
+                ## transfer orderedDict to regular dictionary
+                data[id] = dict(singleData)
+                # print(data[id])
+                writer.writerow(data[id])
+
+
+
+# this method is to delete all the special punctuations in the value contexts, also
+# make sure that each element of the dictionary will be a valid record
+# return a dictionary which contains all the records in the original file
+def process_line(reader,writer,data):
+    all_records = {}
+    id = 0
+    count = 0
+
+    for row in reader:
+        singledata = {}
+        count += 1
+        print("new row")
+        print(row)
+
+
+        for (k,v) in row.items():
+            record_pair = []
+            singleData = {}
+            # print(k)
+
+            if k != None:
+                # print(row)
+                keys = k.split("|")
+                values = v.split("|")
+
+            # there are several situations that the number of keys and the number
+            # of values is different, one is one record accounts for more than one cell
+            # in the csv file; another is there is special punctuation marks in
+            # one record , such as \n
+                if len(keys) != len(values):
+                    print("len(keys)", len(keys))
+                    print("len(values)", len(values))
+
+                # some records accounts for several cells in the csv file,
+                # this is to extract the full contents of a single record
+                    if None in row:
+                        print("NONE")
+                        print(row[None])
+                        v += str(row[None]).strip("['").strip("']")
+                        record_pair.append(v)
+                        # print("v",type(v))
+                        # records has None and \n at the same time
+                        if "\\n" in v:
+                            print("ok")
+                            re1, re2 = v.split("\\n")
+                            print("re1", re1)
+                            print("re2", re2)
+                            record_pair.append(re1)
+                            record_pair.append(re2)
+                            print("new values")
+
+                    else:
+                    # get the next line
+                        next_record = next(reader)
+                    # print("NEXT!!!!!!!",next_record)
+                        for (k1,v1) in next_record.items():
+                            if "\n" in v1:
+                                print("has ")
+                                last, current = v1.split("\n")
+                                v += last
+                                record_pair.append(v)
+                                print("v", v)
+                # if keys and values are the same length, just add the record to
+                # dictionary
+                else:
+                    record_pair.append(v)
+
+
+
+                for item in record_pair:
+                    values = item.split("|")
+                    i = 0
+                    while i < len(keys):
+                        singleData[keys[i].strip("\"")] = values[i].lower().strip("\"")
+                        i += 1
+                    ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
+                    id = int(singleData["unique_id"])
+                    ## transfer orderedDict to regular dictionary
+                    data[id] = dict(singleData)
+                    # print(data[id])
+                    writer.writerow(data[id])
+
+        print("end")
+    print("total count", count)
+    return data
+
+
+
+
+
+
+
 
 
 def read_fibre_file(reader,writer,data):
@@ -75,8 +236,8 @@ def read_fibre_file(reader,writer,data):
         # data = {}
         for row in reader:
             for (k,v) in row.items():
-                print(row)
-                print(k)
+                # print(row)
+                # print(k)
                 ## create a dictionry to store the single records
                 singleData = {}
 
@@ -87,6 +248,9 @@ def read_fibre_file(reader,writer,data):
 
                     # if keys' and values' length is not thw same, try to add values to those empty fields (why this happenes????)
                     if len(keys) != len(values):
+                        print(row)
+                        print(k)
+                        print(v)
                         v += str(row[None])
                         values = v.split("|")
 
