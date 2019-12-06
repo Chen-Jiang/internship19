@@ -1,6 +1,6 @@
 12.06
 Work I have done:
-1. I am writing code about extract and preprocess data from another two original files. Still not finished. There are several situations,such as some special punctuation marks (\n) and some single records account for multiple cells. I am figuring these problems out.
+1. I am writing code about extract and preprocess data from another two original files. Still not finished. There are several situations,such as some special punctuation marks (\n) and some single records account for multiple cells. I am figuring these problems out. The newest code has been uploaded: dedupe_three.py
 2. I am also revising the code of reading the first orinal file to make the file can be used on the three files
 
 12.05
