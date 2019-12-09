@@ -54,7 +54,7 @@ def preProcessFile(fileName, revise_format_file):
                 data = try_it(reader,writer,data)
                 print("result!!!!")
                 print(data[3323622])
-                print(data[3323623])
+                print(data[3323623"])
                 # print(data)
 
                 # read_fibre_file(reader, writer, data)
@@ -77,15 +77,18 @@ def preProcessFile(fileName, revise_format_file):
 def try_it(reader,writer,data):
 
     count = 0
+    # all_original_data = {}
+    special_record = OrderedDict()
     for row in reader:
         print("new row")
+        print("count", count)
 
         for (k,v) in row.items():
             singleData = {}
             if isinstance(v,str):
                 values = v.split("|")
             v_len = len(values)
-            k_len = 0
+            k_len = 13
 
             if k != None:
                 keys = k.split("|")
@@ -93,48 +96,79 @@ def try_it(reader,writer,data):
 
             # situation 1: all the values have been extracted successfully
             if v_len == k_len:
+                data[values[0]] = dict(row)
+                print("data", data[values[0]])
+                print("len(data)", len(data))
                 print("equal")
-        # situation2: just several values are extracted
-            else:
+
+            # some users write some special makrs, like "|"
+            # len(values) > len(keys)
+            elif v_len > k_len:
+                print("v_len", v_len)
+                print("k_len", k_len)
+                print("more than keys")
+                print(v)
+                print(values)
+
+                for i in values:
+                    print(i)
+
+            # situation2: just several values are extracted
+            elif v_len < k_len:
                 print("not equal")
                 print("v:", v)
                 # when the length of values is less than keys', just check and
                 # revise it again and again
-                # while len(values) < k_len:
+                while len(values) < k_len:
                     # situation1: have None as keys
-                if None in row:
-                    print("has NONE")
-                    none_value = ""
-                    # row[None] is a list rather than a String
-                    for ele in row[None]:
-                        none_value += ele.strip("['").strip("']")
-                    if "\n" in none_value:
-                        print("has \\n aaa")
-                        last, current = none_value.split("\n")
-                        print("current",current)
-                        v += last
-                    else:
-                        v += none_value
-
-                    values = v.split("|")
-                    print("new v:",v)
-                    print(len(values))
-
-                if len(values) < k_len:
-                    # read the next line to get more information
-                    next_record = next(reader)
-                    for (k1,v1) in next_record.items():
-                        if "\n" in v1:
-                            print("has \\n bbb")
-                            last, current = v1.split("\n")
-                            # print("last",last)
-                            print("current", current)
-                            # current_field = current.split("|")
+                    if None in row:
+                        print("has NONE")
+                        none_value = ""
+                        # row[None] is a list rather than a String
+                        for ele in row[None]:
+                            none_value += ele.strip("['").strip("']")
+                        if "\n" in none_value:
+                            print("has \\n aaa")
+                            last, current = none_value.split("\n")
+                            print("current",current)
+                            current_field = current.split("|")
+                            for i in range(len(current_field)):
+                                special_record[keys[i]] = current_field[i].lower().strip("\"")
                             v += last
-                            print("last v", v)
-                            values = v.split("|")
+                            data[current_field[0]] = dict(special_record)
+                            print("very special!!!!", keys[0])
+                            print("data[va[0]]", data[current_field[0]])
+                            print("len(data)", len(data))
+                        else:
+                            v += none_value
 
-                if len(values) == k_len:
+                        values = v.split("|")
+                        print("new v:",v)
+                        print(len(values))
+
+                    if len(values) < k_len:
+                        # read the next line to get more information
+                        next_record = next(reader)
+                        for (k1,v1) in next_record.items():
+                            if "\n" in v1:
+                                print("has \\n bbb")
+                                last, current = v1.split("\n")
+                                # print("last",last)
+                                print("current", current)
+                                # current_field = current.split("|")
+                                v += last
+                                current_field = current.split("|")
+                                for i in range(len(current_field)):
+                                    special_record[keys[i]] = current_field[i]
+                                data[current_field[0]] = dict(special_record)
+                                print("last v", v)
+                                values = v.split("|")
+
+                    if len(values) == k_len:
+                        print("keys[0]", keys[0])
+                        data[values[0]] = dict(row)
+                        print("data[keys[0]]", data[values[0]])
+                        print("len(data)", len(data))
                         break
 
         # print("break")
@@ -150,7 +184,9 @@ def try_it(reader,writer,data):
         # print(data[id])
         writer.writerow(data[id])
         count += 1
-    print("count",count)
+    # print("count",count)
+    print("len(data)", len(data))
+    # print(all_original_data)
 
     return data
 
