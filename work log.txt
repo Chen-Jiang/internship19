@@ -1,3 +1,11 @@
+12.09
+Work I have done:
+1. I am focusing on reading and extracting data from the other two files, currently, I am focusing on the matrix file. the size of the file is much bigger than the fibre file, and with an increasing number of records, users have a more different format of contents which leads to more situations. I have learned that users can write down any contents, including some special punctuation marks, so if we need to do some operations according to some contents, we need to preprocess users' contents first.
+2. Currently, I still fixing a bug when reading the matrix file: 
+	some users' record like this format:
+		{'unique_id|"first_name"|"last_name"|"address_line"|"suburb"|"city"|"postcode"|"country"|"dob"|"email"|"phone_1"|"phone_2"|"phone_3"': '3323622|"PHILIP & GLENDA"|"MCDONNELL & STEWART"|"30 MILLSTREAM DRIVE"|"NORTHWOOD"|"CHRISTCHURCH 8051"|"8051"|"NEW ZEALAND"||"GLENDASTEWART25@HOTMAIL.CO', None: ['|||\n3323623"|"KEVIN"|"HENRY"|"268 MARSDEN ROAD"||"GREYMOUTH 7805"|"7805"|"NEW ZEALAND"|||||']}
+	his record is combined with another user's record, the bug is that in the data I read from the original file, the second data(KEVIN's) is not extracted from the file.
+
 12.06
 Work I have done:
 1. I am writing code about extract and preprocess data from another two original files. Still not finished. There are several situations,such as some special punctuation marks (\n) and some single records account for multiple cells. I am figuring these problems out. The newest code has been uploaded: dedupe_three.py
