@@ -1,3 +1,8 @@
+12.10
+Work I have done:
+1. I am still figuring out extracting data from the matrix file. Try to use different methods. The new progress have uploaded: try.py
+2. I haven't finished adding documentation yet, still adding...
+
 12.09
 Work I have done:
 1. I am focusing on reading and extracting data from the other two files, currently, I am focusing on the matrix file. the size of the file is much bigger than the fibre file, and with an increasing number of records, users have a more different format of contents which leads to more situations. I have learned that users can write down any contents, including some special punctuation marks, so if we need to do some operations according to some contents, we need to preprocess users' contents first.
