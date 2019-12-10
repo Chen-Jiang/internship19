@@ -51,7 +51,7 @@ def preProcessFile(fileName, revise_format_file):
             with open(fileName, encoding = "ISO-8859-1") as f:
                 reader = csv.DictReader(f, delimiter=",", lineterminator=",")
                 # all_records = {}
-                data = try_it(reader,writer,data)
+                data = try_it(reader,writer,data, fieldnames)
                 print("result!!!!")
                 print(data[3323622])
                 print(data[3323623])
@@ -74,138 +74,95 @@ def preProcessFile(fileName, revise_format_file):
         file.close()
         return data
 
-def try_it(reader,writer,data):
-
+def try_it(reader,writer,data,fieldnames):
+    keys = fieldnames
+    k_len = len(keys)
     count = 0
-    # all_original_data = {}
+
+
 
     for row in reader:
-        special_record = OrderedDict()
-        print("new row")
-        print("count", count)
-
+        # print("row", row)
+        singleData = {}
+        records = []
+        values = []
+        vs = ""
+        # loop all the keys and values within a row
         for (k,v) in row.items():
-            singleData = {}
+            # add the values to a string vs
             if isinstance(v,str):
-                values = v.split("|")
-            v_len = len(values)
-            k_len = 13
+                vs += v
 
-            if k != None:
-                keys = k.split("|")
-                k_len = len(keys)
+            if isinstance(v,list):
+                for ele in v:
+                    vs += ele
+        # according to vs, split the vs into values array
+        values = vs.split("|")
+        # revise all the format of the element in the value array
+        for i in range(len(values)):
+            values[i] = values[i].lower().strip("\"")
+        # print("values", values)
 
-            # situation 1: all the values have been extracted successfully
-            # if the length is the same, we should do no operations
-            # if v_len == k_len:
-                # data[values[0]] = dict(row)
-                # print("equal")
-                # print("data", data[values[0]])
-                # print("len(data)", len(data))
+        # till now, all the values of this record are extracted
+        v_len = len(values)
 
-            # some users write some special makrs, like "|"
-            # len(values) > len(keys)
+        if v_len == k_len:
+            records.append(values)
+            # print("valid record")
+        else:
             if v_len > k_len:
-                # print("v_len", v_len)
-                # print("k_len", k_len)
-                print("more than keys")
-                # print(v)
-                # print(values)
-
-                for i in values:
-                    print(i)
-
-            # situation2: just several values are extracted
+                for item in values:
+                    if "\n" in item:
+                        # print("here comes")
+                        first, second = vs.split("\n")
+                        # put invalid records into an array and write the array separately
+                        records.append(first.split("|"))
+                        records.append(second.split("|"))
+                    else:
+                        print("NOOOOO")
             elif v_len < k_len:
-                print("less than keys")
-                print("v:", v)
-                # when the length of values is less than keys', just check and
-                # revise it again and again
-                while len(values) < k_len:
-                    # situation1: have None as keys
-                    if None in row:
-                        print("has NONE")
-                        print("original v: ", v)
-                        # the value when key is equal to "NONE"
-                        none_value = ""
-                        # row[None] is a list rather than a String
-                        for ele in row[None]:
-                            none_value += ele.strip("['").strip("']").strip("\"")
-                        print("row[None]", row[None])
-                        print("none_value!!!!", none_value)
-                        # the situation is like:
-                        # {'unique_id|"first_name"|"last_name"|"address_line"|"suburb"|"city"|"postcode"|"country"|"dob"|"email"|"phone_1"|"phone_2"|"phone_3"':
-                        # '3323622|"PHILIP & GLENDA"|"MCDONNELL & STEWART"|"30 MILLSTREAM DRIVE"|"NORTHWOOD"|"CHRISTCHURCH 8051"|"8051"|"NEW ZEALAND"||"GLENDASTEWART25@HOTMAIL.CO',
-                        # None: ['|||\n3323623"|"KEVIN"|"HENRY"|"268 MARSDEN ROAD"||"GREYMOUTH 7805"|"7805"|"NEW ZEALAND"|||||']}
-                        # there is an "\n" in the value of "NONE" key
-                        if "\n" in none_value:
-                            print("has \\n aaa")
-                            last, current = none_value.split("\n")
-                            print("last", last)
-                            print("current",current)
-                            current_field = current.split("|")
-                            for i in range(len(current_field)):
-                                current_field[i] = current_field[i].lower().strip("\"")
-                                special_record[keys[i]] = current_field[i]
-                            v += last
-                            data[current_field[0]] = dict(special_record)
-                            print("index!!!", current_field[0])
-                            print("data[index]", data[current_field[0]])
-                            print("len(data)", len(data))
-                        else:
-                            v += none_value
+                print("values", values)
+                next_record = next(reader)
+                print("next record::", next_record)
+                current = ""
+                for (k1,v1) in next_record.items():
 
-                        values = v.split("|")
-                        print("new v:",v)
-                        print(len(values))
+                    if isinstance(v1, str):
+                        last, current = v1.split("\n")
 
-                    if len(values) < k_len:
-                        print("do not have none")
-                        # read the next line to get more information
-                        next_record = next(reader)
-                        for (k1,v1) in next_record.items():
-                            if "\n" in v1:
-                                print("has \\n bbb")
-                                last, current = v1.split("\n")
-                                # print("last",last)
-                                print("current", current)
-                                # current_field = current.split("|")
-                                v += last
-                                current_field = current.split("|")
-                                for i in range(len(current_field)):
-                                    current_field[i] = current_field[i].lower().strip("\"")
-                                    special_record[keys[i]] = current_field[i]
-                                data[current_field[0]] = dict(special_record)
-                                print("last v", v)
-                                values = v.split("|")
+                        print("last:",last)
+                        print("current", current)
+                        vs += last
+                        last_fields = vs.split("|")
+                        # add the next_record's contents to the former values array
+                        # values.append(last_fields)
+                        # add the two records to the special records
+                        records.append(last_fields)
+                    if isinstance(v1, list):
+                        print("enter")
+                        for ele in v1:
+                            current += ele
+                        print("current123",current)
 
-                    if len(values) == k_len:
-                        # print("finally equal")
-                        # print("index", values[0])
-                        # data[values[0]] = dict(row)
-                        # print("index!!!", values[0])
-                        # print("data[keys[0]]", data[values[0]])
-                        # print("len(data)", len(data))
-                        break
+                    current_field = current.split("|")
+                    records.append(current_field)
 
-        # print("break")
-        # before this step, I should make all the records have valid keys and values array
-        # and write these valid record to the singleData dictionary, then write to row
-        i = 0
-        while i < len(keys):
-            singleData[keys[i].strip("\"")] = values[i].lower().strip("\"")
-            i += 1
-        ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
-        id = int(singleData["unique_id"])
-        ## transfer orderedDict to regular dictionary
-        data[id] = dict(singleData)
-        # print(data[id])
-        writer.writerow(data[id])
-        count += 1
-    # print("count",count)
-    print("len(data)", len(data))
-    # print(all_original_data)
 
+        for element in records:
+            print("element",element)
+
+            i = 0
+            while i < k_len:
+                singleData[keys[i].strip("\"")] = element[i]
+                i += 1
+            ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
+            id = int(singleData["unique_id"].strip("\""))
+            ## transfer orderedDict to regular dictionary
+            data[id] = dict(singleData)
+            # print(data[id])
+            writer.writerow(data[id])
+            count += 1
+    print(count)
     return data
 
 
