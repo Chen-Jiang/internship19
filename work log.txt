@@ -3,6 +3,8 @@ Work I have done:
 1. I am still focusing on read data from matrix file, today I figured how to extract data when the teo records are combined with each other, like this format:{'unique_id|"first_name"|"last_name"|"address_line"|"suburb"|"city"|"postcode"|"country"|"dob"|"email"|"phone_1"|"phone_2"|"phone_3"': '3323622|"PHILIP & GLENDA"|"MCDONNELL & STEWART"|"30 MILLSTREAM DRIVE"|"NORTHWOOD"|"CHRISTCHURCH 8051"|"8051"|"NEW ZEALAND"||"GLENDASTEWART25@HOTMAIL.CO', None: ['|||\n3323623"|"KEVIN"|"HENRY"|"268 MARSDEN ROAD"||"GREYMOUTH 7805"|"7805"|"NEW ZEALAND"|||||']}
 and now I am figuring out how to extract data validly when user wrote some special information (such as I use "|" as delimiter, however some users has "|" in their field contents).
 Till now, there are 633,543 records in the matrix file and I have extracted 633,535 records, I hope to finish reading the file tomorrow.
+Problems I met:
+1. There are so many different "abnormal" data in the original file, I should be more careful so that I won't miss any data.
 
 
 12.10
