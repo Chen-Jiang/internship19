@@ -6,7 +6,6 @@ Till now, there are 633,543 records in the matrix file and I have extracted 633,
 Problems I met:
 1. There are so many different "abnormal" data in the original file, I should be more careful so that I won't miss any data.
 
-
 12.10
 Work I have done:
 1. I am still figuring out extracting data from the matrix file. Try to use different methods. The new progress have uploaded: try.py
