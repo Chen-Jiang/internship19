@@ -1,4 +1,4 @@
-# this is the newest version of reading matrix file
+# this is the newest version of reading matrix_file
 ## this is to use dedupe to analyse data
 
 from collections import defaultdict
