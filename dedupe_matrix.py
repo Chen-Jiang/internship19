@@ -1,3 +1,4 @@
+# this is the newest version of reading matrix file
 ## this is to use dedupe to analyse data
 
 from collections import defaultdict
@@ -61,8 +62,9 @@ def preProcessFile(fileName, revise_format_file):
                 print("data[3644948]", data[3644948])
                 print("data[3702528]", data[3702528])
                 print("data[3702527]", data[3702527])
-                print("data[47910]", data[47910])
-                print("data[4791]", data[4791])
+                print("data[3804996]", data[3804996])
+                print("data[3803019]", data[3803019])
+                print("data[3322553]", data[3322553])
 
                 # read_fibre_file(reader, writer, data)
 
@@ -99,74 +101,114 @@ def try_it(reader,writer,data,fieldnames):
             # add the values to a string vs
             if isinstance(v,str):
                 vs += v
+                # print("v:",v)
 
             if isinstance(v,list):
-                for ele in v:
-                    vs += ele
-        # according to vs, split the vs into values array
-        values = vs.split("|")
-        # revise all the format of the element in the value array
-        for i in range(len(values)):
-            values[i] = values[i].lower().strip("\"")
-        # print("values", values)
-
-        # till now, all the values of this record are extracted
-        v_len = len(values)
-
-        if v_len == k_len:
-            records.append(values)
-            # print("valid record")
+                # for ele in v:
+                #     vs += ele
+                for i in range(len(v)):
+                    if v[i].startswith("|") and "\n" not in v[i]:
+                        print("has aaaaa")
+                        vs += "\"" + v[i][0] + "\"" + v[i][1:]
+                    else:
+                        vs += v[i]
+        # like this situation:
+        # 3323622|"PHILIP & GLENDA"|"MCDONNELL & STEWART"|"30 MILLSTREAM DRIVE"|"NORTHWOOD"|"CHRISTCHURCH 8051"|"8051"|"NEW ZEALAND"|
+        # |"GLENDASTEWART25@HOTMAIL.CO|||\n3323623"|"KEVIN"|"HENRY"|"268 MARSDEN ROAD"||"GREYMOUTH 7805"|"7805"|"NEW ZEALAND"|||||
+        if "\n" in vs:
+            print("has \\n:",vs)
+            first_record, second_record = vs.split("\n")
+            print("first_record",first_record)
+            print("second_record",second_record)
+            records.append(first_record.split("|"))
+            records.append(second_record.split("|"))
+        # another type: do not have \n in the record
         else:
-            if v_len > k_len:
-                print("row",row)
-                for item in values:
-                    if "\n" in item:
-                        print("here comes", item)
-                        first, second = vs.split("\n")
-                        print("first", first)
-                        print("second", second)
-                        # put invalid records into an array and write the array separately
-                        records.append(first.split("|"))
-                        records.append(second.split("|"))
-                    # else:
+            f1 = re.findall("\|?\"[^\"]*\|[^\"]*?\"\|",vs)
 
-            elif v_len < k_len:
-                print("values", values)
-                # if values' length is less than keys' length, we extract the next record
-                # to see if there is any remaining part of the last record
-                next_record = next(reader)
-                print("next record::", next_record)
-                current = ""
-                for (k1,v1) in next_record.items():
+            if len(f1) > 0:
+                print("f1:", f1)
+                print("vs:", vs)
+                for item in f1:
+                    print("item",item)
+                    item_new = item.strip("|")
+                    item_new = re.sub("\|","(this is a replacement)",item_new)
+                    vs = vs.replace(item.strip("|"),item_new)
+                print("new vs:", vs)
+                values = vs.split("|")
+                for i in range(len(values)):
+                    if "(this is a replacement)" in values[i]:
+                        print("ele1",values[i])
+                        values[i] = values[i].replace("(this is a replacement)", "|")
+                        print("ele2",values[i])
+                print("BIG!!!!!!!!!",values)
 
-                    # values can be a String
-                    if isinstance(v1, str):
-                        last, current = v1.split("\n")
+            elif len(f1) == 0:
+                # according to vs, split the vs into values array
+                values = vs.split("|")
 
-                        print("last:",last)
-                        print("current", current)
-                        vs += last
-                        last_fields = vs.split("|")
-                        print("last_fields", last_fields)
-                        # add the next_record's contents to the former values array
-                        # add the two records to the special records
-                        records.append(last_fields)
-                    # when key = None, the value is a list
-                    if isinstance(v1, list):
-                        print("enter")
-                        for ele in v1:
-                            current += ele
-                        print("current123",current)
+            # revise all the format of the element in the value array
+            for i in range(len(values)):
+                values[i] = values[i].lower().strip("\"")
+            # print("values", values)
 
-                # when finishes loop, add current record to records
-                current_field = current.split("|")
-                records.append(current_field)
+            # till now, all the values of this record are extracted
+            v_len = len(values)
+
+            if v_len == k_len:
+                records.append(values)
+                # print("valid record")
+            else:
+                if v_len > k_len:
+                    print("row",row)
+                    for item in values:
+                        if "\n" in item:
+                            print("here comes", item)
+                            first, second = vs.split("\n")
+                            print("first", first)
+                            print("second", second)
+                            # put invalid records into an array and write the array separately
+                            records.append(first.split("|"))
+                            records.append(second.split("|"))
+                        # else:
+
+                elif v_len < k_len:
+                    print("values", values)
+                    # if values' length is less than keys' length, we extract the next record
+                    # to see if there is any remaining part of the last record
+                    next_record = next(reader)
+                    print("next record::", next_record)
+                    current = ""
+                    for (k1,v1) in next_record.items():
+
+                        # values can be a String
+                        if isinstance(v1, str):
+                            last, current = v1.split("\n")
+
+                            print("last:",last)
+                            print("current", current)
+                            vs += last
+                            last_fields = vs.split("|")
+                            print("last_fields", last_fields)
+                            # add the next_record's contents to the former values array
+                            # add the two records to the special records
+                            records.append(last_fields)
+                        # when key = None, the value is a list
+                        if isinstance(v1, list):
+                            print("enter")
+                            for ele in v1:
+                                current += ele
+                            print("current123",current)
+
+                    # when finishes loop, add current record to records
+                    current_field = current.split("|")
+                    records.append(current_field)
 
 
         for element in records:
             i = 0
             while i < k_len:
-                singleData[keys[i].strip("\"")] = element[i]
+                singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
                 i += 1
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
