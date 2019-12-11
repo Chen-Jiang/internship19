@@ -1,4 +1,14 @@
-# this is the newest version of reading matrix_file
+'''
+this file is used to read matrix file to extract data from file and use active learning
+
+ideas about how to extract data from matrix file:
+1. deal with "\n" firstly: separate records like that firstly
+2. deal with has the same makrs with delimiter
+3. deal witn the records who has less fields
+
+'''
+
+
 ## this is to use dedupe to analyse data
 
 from collections import defaultdict
@@ -30,91 +40,55 @@ def preProcessFile(fileName, revise_format_file):
     # read the original file, change the format and write to the new file
     with open(revise_format_file,'a') as file:
         data = {}
-        # according to different input file, run differnt nethod about reading file
-        if n1 == 'experian_fibre':
-            ## set new csv file's headers (all the headers from the original files)
-            fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','email','phone_main','phone_mobile','phone_fax']
-            writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
+        ## set new csv file's headers (all the headers from the original files)
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_1','phone_2','phone_3']
+        writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
+        writer.writeheader()
 
-            ## read original csv file, and read every row to a dictionary then write every dictionary to the new csv file
-            with open(fileName, encoding = "ISO-8859-1") as f:
-                reader = csv.DictReader(f, delimiter="\n")
-                read_fibre_file(reader, writer, data)
-
-        elif n1 == 'experian_matrix':
-            ## set new csv file's headers (all the headers from the original files)
-            fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_1','phone_2','phone_3']
-            writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
-
-            ## read original csv file, and read every row to a dictionary then write every dictionary to the new csv file
-            with open(fileName, encoding = "ISO-8859-1") as f:
-                reader = csv.DictReader(f, delimiter=",", lineterminator=",")
-                # all_records = {}
-                data = try_it(reader,writer,data, fieldnames)
-                print("result!!!!")
-                print("data[3323622]", data[3323622])
-                print("data[3323623]", data[3323623])
-                print("data[3381810]", data[3381810])
-                print("data[3381809]", data[3381809])
-                print("data[3644949]", data[3644949])
-                print("data[3644948]", data[3644948])
-                print("data[3702528]", data[3702528])
-                print("data[3702527]", data[3702527])
-                print("data[3804996]", data[3804996])
-                print("data[3803019]", data[3803019])
-                print("data[3322553]", data[3322553])
-
-                # read_fibre_file(reader, writer, data)
-
-        elif n1 == 'experian_neighbourly':
-            ## set new csv file's headers (all the headers from the original files)
-            fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_home','phone_mobile']
-            writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
-
-            ## read original csv file, and read every row to a dictionary then write every dictionary to the new csv file
-            with open(fileName, encoding = "ISO-8859-1") as f:
-                reader = csv.DictReader(f, delimiter="\n")
-                read_fibre_file(reader, writer, data)
+        ## read original csv file, and read every row to a dictionary then write every dictionary to the new csv file
+        with open(fileName, encoding = "ISO-8859-1") as f:
+            reader = csv.DictReader(f, delimiter=",", lineterminator=",")
+            # all_records = {}
+            data = read_matrix_file(reader,writer,data, fieldnames)
 
         print("writing completed")
         file.close()
         return data
 
-def try_it(reader,writer,data,fieldnames):
+def read_matrix_file(reader,writer,data,fieldnames):
     keys = fieldnames
     k_len = len(keys)
     count = 0
 
-
-
+    # read line by line
     for row in reader:
         # print("row", row)
         singleData = {}
         records = []
         values = []
         vs = ""
-        # loop all the keys and values within a row
+
+        # step1: extract records contents
+        # get all the values of this record and make sure the format of the values
+        # is the same, like: |"xxxxxx"|"XXXXXX"|"xxxxxXXXXX"|
         for (k,v) in row.items():
             # add the values to a string vs
             if isinstance(v,str):
                 vs += v
-                # print("v:",v)
 
             if isinstance(v,list):
-                # for ele in v:
-                #     vs += ele
                 for i in range(len(v)):
                     if v[i].startswith("|") and "\n" not in v[i]:
                         print("has aaaaa")
                         vs += "\"" + v[i][0] + "\"" + v[i][1:]
                     else:
                         vs += v[i]
-        # like this situation:
+
+        # step2: process different format of records tofind all the valid field values then write to records array
+        # first deal with records with \n, like this situation:
         # 3323622|"PHILIP & GLENDA"|"MCDONNELL & STEWART"|"30 MILLSTREAM DRIVE"|"NORTHWOOD"|"CHRISTCHURCH 8051"|"8051"|"NEW ZEALAND"|
         # |"GLENDASTEWART25@HOTMAIL.CO|||\n3323623"|"KEVIN"|"HENRY"|"268 MARSDEN ROAD"||"GREYMOUTH 7805"|"7805"|"NEW ZEALAND"|||||
+        # if there is \n in the records, separate them firstly
         if "\n" in vs:
             print("has \\n:",vs)
             first_record, second_record = vs.split("\n")
@@ -124,75 +98,79 @@ def try_it(reader,writer,data,fieldnames):
             records.append(second_record.split("|"))
         # another type: do not have \n in the record
         else:
+            # find any records who has extra "|" in the field contents
+            # like this format: |"XXXXX|XXXXX"|, which will affect the result
+            # separated by "|"
             f1 = re.findall("\|?\"[^\"]*\|[^\"]*?\"\|",vs)
 
+            # if there is such extra | situation in the record
             if len(f1) > 0:
-                print("f1:", f1)
-                print("vs:", vs)
+                # print("f1:", f1)
+                # print("vs:", vs)
+                # replace all the extra | to other contents; then split the records according to |;
+                # after splitting, replace the replaced contents to | again
                 for item in f1:
-                    print("item",item)
-                    item_new = item.strip("|")
-                    item_new = re.sub("\|","(this is a replacement)",item_new)
+                    print("item",item)  # |"gillandbarry|@xnet.co.nz"|
+                    # remove the normal |, so only extra | is remained
+                    item_new = item.strip("|")      # "gillandbarry|@xnet.co.nz"
+                    # replace | to (this is a replacement)
+                    item_new = re.sub("\|","(this is a replacement)",item_new)  # "gillandbarry(this is a replacement)@xnet.co.nz"
+                    # replace "gillandbarry|@xnet.co.nz" to "gillandbarry(this is a replacement)@xnet.co.nz"
+                    # and update vs
                     vs = vs.replace(item.strip("|"),item_new)
                 print("new vs:", vs)
+                # split vs according to "|", after aplitting, replace back
                 values = vs.split("|")
                 for i in range(len(values)):
                     if "(this is a replacement)" in values[i]:
-                        print("ele1",values[i])
                         values[i] = values[i].replace("(this is a replacement)", "|")
-                        print("ele2",values[i])
-                print("BIG!!!!!!!!!",values)
 
+            # if there is no extra | in the field values, just split vs according to "|"
             elif len(f1) == 0:
-                # according to vs, split the vs into values array
                 values = vs.split("|")
 
             # revise all the format of the element in the value array
             for i in range(len(values)):
                 values[i] = values[i].lower().strip("\"")
-            # print("values", values)
 
-            # till now, all the values of this record are extracted
+
             v_len = len(values)
-
+            # all the values are extracted, add this record to records array
+            # this is record is DONE!!!
             if v_len == k_len:
                 records.append(values)
                 # print("valid record")
             else:
                 if v_len > k_len:
-                    print("row",row)
-                    for item in values:
-                        if "\n" in item:
-                            print("here comes", item)
-                            first, second = vs.split("\n")
-                            print("first", first)
-                            print("second", second)
-                            # put invalid records into an array and write the array separately
-                            records.append(first.split("|"))
-                            records.append(second.split("|"))
-                        # else:
+                    print("Still more than",row)
 
                 elif v_len < k_len:
                     print("values", values)
                     # if values' length is less than keys' length, we extract the next record
                     # to see if there is any remaining part of the last record
+                    # then, the next row will be skipped in the loop
                     next_record = next(reader)
                     print("next record::", next_record)
                     current = ""
                     for (k1,v1) in next_record.items():
 
-                        # values can be a String
+                        # values can be a String, like this format:
+                        # 'unique_id|"first_name"|"last_name"|"address_line"|"suburb"|"city"|"postcode"|"country"|"dob"|"email"|"phone_1"|"phone_2"|"phone_3"',
+                        # '|||\n3381810"||"FAWCETT"|"14 ARATAKI ROAD"||"HAVELOCK NORTH 4130"|"4130"|"NEW ZEALAND"|||||'
                         if isinstance(v1, str):
-                            last, current = v1.split("\n")
 
-                            print("last:",last)
-                            print("current", current)
-                            vs += last
-                            last_fields = vs.split("|")
-                            print("last_fields", last_fields)
-                            # add the next_record's contents to the former values array
-                            # add the two records to the special records
-                            records.append(last_fields)
+                            if "\n" in v1:
+                                # last is the last one's remaining part
+                                # current is the next record's contents
+                                last, current = v1.split("\n")
+                                print("last:",last)
+                                print("current", current)
+                                vs += last
+                                last_fields = vs.split("|")
+                                print("last_fields", last_fields)
+                                # add the next_record's contents to the former values array
+                                # add the two records to the special records
+                                records.append(last_fields)
                         # when key = None, the value is a list
                         if isinstance(v1, list):
                             print("enter")
@@ -204,10 +182,16 @@ def try_it(reader,writer,data,fieldnames):
                     current_field = current.split("|")
                     records.append(current_field)
 
-
+        # step3: get element from records array and write to new file
+        # if the row is valid without any processing, the len(records) = 1;
+        # other situations like combvine two records in a single row, the len(records) = 2
         for element in records:
             i = 0
             while i < k_len:
+                # transform the format of phone number delete all the "-"
+                if i == 10 or i == 11 or i == 12:
+                    element[i] = element[i].replace("+64","")
+                    element[i] = element[i].replace("-","")
                 singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
                 i += 1
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
@@ -220,167 +204,6 @@ def try_it(reader,writer,data,fieldnames):
     print(count)
     return data
 
-
-
-# this method is to delete all the special punctuations in the value contexts, also
-# make sure that each element of the dictionary will be a valid record
-# return a dictionary which contains all the records in the original file
-def process_line(reader,writer,data):
-    all_records = {}
-    id = 0
-    count = 0
-
-    for row in reader:
-        singledata = {}
-        count += 1
-        print("new row")
-        print(row)
-
-
-        for (k,v) in row.items():
-            record_pair = []
-            singleData = {}
-            # print(k)
-
-            if k != None:
-                # print(row)
-                keys = k.split("|")
-                values = v.split("|")
-
-            # there are several situations that the number of keys and the number
-            # of values is different, one is one record accounts for more than one cell
-            # in the csv file; another is there is special punctuation marks in
-            # one record , such as \n
-                if len(keys) != len(values):
-                    print("len(keys)", len(keys))
-                    print("len(values)", len(values))
-
-                # some records accounts for several cells in the csv file,
-                # this is to extract the full contents of a single record
-                    if None in row:
-                        print("NONE")
-                        print(row[None])
-                        v += str(row[None]).strip("['").strip("']")
-                        record_pair.append(v)
-                        # print("v",type(v))
-                        # records has None and \n at the same time
-                        if "\\n" in v:
-                            print("ok")
-                            re1, re2 = v.split("\\n")
-                            print("re1", re1)
-                            print("re2", re2)
-                            record_pair.append(re1)
-                            record_pair.append(re2)
-                            print("new values")
-
-                    else:
-                    # get the next line
-                        next_record = next(reader)
-                    # print("NEXT!!!!!!!",next_record)
-                        for (k1,v1) in next_record.items():
-                            if "\n" in v1:
-                                print("has ")
-                                last, current = v1.split("\n")
-                                v += last
-                                record_pair.append(v)
-                                print("v", v)
-                # if keys and values are the same length, just add the record to
-                # dictionary
-                else:
-                    record_pair.append(v)
-
-
-
-                for item in record_pair:
-                    values = item.split("|")
-                    i = 0
-                    while i < len(keys):
-                        singleData[keys[i].strip("\"")] = values[i].lower().strip("\"")
-                        i += 1
-                    ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
-                    id = int(singleData["unique_id"])
-                    ## transfer orderedDict to regular dictionary
-                    data[id] = dict(singleData)
-                    # print(data[id])
-                    writer.writerow(data[id])
-
-        print("end")
-    print("total count", count)
-    return data
-
-
-
-
-
-
-
-
-
-def read_fibre_file(reader,writer,data):
-        ## create a dictionary: data to store all the records
-        # data = {}
-        for row in reader:
-            for (k,v) in row.items():
-                # print(row)
-                # print(k)
-                ## create a dictionry to store the single records
-                singleData = {}
-
-                if k != None:
-                ## split keys and values to a list, then match every key-value pair to a dictionary
-                    keys = k.split("|")
-                    values = v.split("|")
-
-                    # if keys' and values' length is not thw same, try to add values to those empty fields (why this happenes????)
-                    if len(keys) != len(values):
-                        print(row)
-                        print(k)
-                        print(v)
-                        v += str(row[None])
-                        values = v.split("|")
-
-                    # print(row[None])
-                    print("len(keys)", len(keys))
-                    print("len(values)", len(values))
-
-                    i = 0
-                    ## to delete all the ",,," at the end of each row, len(keys)-1
-                    while i < len(keys)-1:
-                        if not values[i].strip("\"").strip("-").strip():
-                            values[i] = "null"
-                        else:
-                            if "," not in values[i]:
-                                ## delete all the "" of the words
-                                # lower all the words to make sure all these letters are capital insensible
-                                singleData[keys[i].strip("\"")] = values[i].lower().strip("\"")
-                                i += 1
-                                ## some contents are written in a single cell
-                                ## separate into different cells
-                            else:
-                                contents = values[i].split(",")
-                                for j in range(len(contents)):
-                                    ## delete all the "" of the words
-                                    singleData[keys[i].strip("\"")] = contents[j].lower().strip("\"")
-                                    i = i + 1
-                    ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
-                    id = int(singleData["unique_id"])
-                    ## transfer orderedDict to regular dictionary
-                    data[id] = dict(singleData)
-                    # print(data[id])
-                    writer.writerow(data[id])
-
-# def read_matrix_file(reader, writer, data):
-
-
-
-## read the adjusted csv file and create a dictionary of recoreds
-def readData(fileName):
-    data = {}
-    with open(fileName) as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            print(row)
-    return data
 
 print('read file...')
 n1, n2 = input_file.split(".")
@@ -401,12 +224,15 @@ else:
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
         {'field':'address_line','type': 'String','has missing' : True},
+        {'field':'suburb','type': 'String','has missing' : True},
         {'field':'city','type': 'String','has missing' : True},
         {'field':'postcode','type': 'Exact','has missing' : True},
         {'field':'country','type': 'String','has missing' : True},
+        {'field':'dob','type': 'String','has missing' : True},
         {'field':'email','type': 'String','has missing' : True},
-        {'field':'phone_main','type': 'Exact','has missing' : True},
-        {'field':'phone_mobile','type': 'Exact','has missing' : True},
+        {'field':'phone_1','type': 'Exact','has missing' : True},
+        {'field':'phone_2','type': 'Exact','has missing' : True},
+        {'field':'phone_3','type': 'Exact','has missing' : True},
         ]
 
     # Create a new deduper object and pass our data model to it.
