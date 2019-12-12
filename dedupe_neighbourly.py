@@ -1,15 +1,12 @@
 '''
-this file is used to read matrix file to extract data from file and use active learning
+this file is used to read neighbourly_file to extract data from file and use active learning
 
-ideas about how to extract data from matrix file:
+ideas about how to extract data from matrix file (the same as reading matrix_file):
 1. deal with "\n" firstly: separate records like that firstly
 2. deal with has the same makrs with delimiter
 3. deal witn the records who has less fields
 
 '''
-
-
-## this is to use dedupe to analyse data
 
 from collections import defaultdict
 from collections import OrderedDict
@@ -25,10 +22,7 @@ import dedupe
 from unidecode import unidecode
 
 ## files
-# input_file = 'experian_fibre.csv'
-input_file = 'experian_matrix.csv'
-# input_file = 'experian_neighbourly.csv'
-# input_file = 'copy.csv'
+input_file = 'experian_neighbourly.csv'
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
@@ -41,7 +35,7 @@ def preProcessFile(fileName, revise_format_file):
     with open(revise_format_file,'a') as file:
         data = {}
         ## set new csv file's headers (all the headers from the original files)
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_1','phone_2','phone_3']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_home','phone_mobile']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -49,33 +43,19 @@ def preProcessFile(fileName, revise_format_file):
         with open(fileName, encoding = "ISO-8859-1") as f:
             reader = csv.DictReader(f, delimiter=",", lineterminator=",")
             # all_records = {}
-            data = read_matrix_file(reader,writer,data, fieldnames)
-            print("result!!!!")
-            print("data[3323622]", data[3323622])
-            print("data[3323623]", data[3323623])
-            print("data[3381810]", data[3381810])
-            print("data[3381809]", data[3381809])
-            print("data[3644949]", data[3644949])
-            print("data[3644948]", data[3644948])
-            print("data[3702528]", data[3702528])
-            print("data[3702527]", data[3702527])
-            print("data[3804996]", data[3804996])
-            print("data[3803019]", data[3803019])
-            print("data[3322553]", data[3322553])
+            data = read_neighbourly_file(reader,writer,data, fieldnames)
 
         print("writing completed")
         file.close()
         return data
 
-def read_matrix_file(reader,writer,data,fieldnames):
+def read_neighbourly_file(reader,writer,data,fieldnames):
     keys = fieldnames
     k_len = len(keys)
     count = 0
-    num = 0
 
     # read line by line
     for row in reader:
-        count += 1
         # print("row", row)
         singleData = {}
         records = []
@@ -93,6 +73,7 @@ def read_matrix_file(reader,writer,data,fieldnames):
             if isinstance(v,list):
                 for i in range(len(v)):
                     if v[i].startswith("|") and "\n" not in v[i]:
+                        print("has aaaaa")
                         vs += "\"" + v[i][0] + "\"" + v[i][1:]
                     else:
                         vs += v[i]
@@ -115,7 +96,7 @@ def read_matrix_file(reader,writer,data,fieldnames):
             # if there is such extra | situation in the record
             if len(values) > k_len:
                 # find any records who has extra "|" in the field contents
-                # like this format: |"XXXXX|XXXXX"|, which will affect the result
+                # like this format: |"|XXXXX|XXXXX|"|, which will affect the result
                 # separated by "|"
                 f2 = re.finditer("(\|){1}\"[^\"]*\|[^\"]*?\"",vs)
                 # replace all the extra | to other contents; then split the records according to |;
@@ -136,8 +117,6 @@ def read_matrix_file(reader,writer,data,fieldnames):
                     if "(this is a replacement)" in values[i]:
                         values[i] = values[i].replace("(this is a replacement)", "|")
 
-
-
             # revise all the format of the element in the value array
             for i in range(len(values)):
                 values[i] = values[i].lower().strip("\"")
@@ -148,7 +127,6 @@ def read_matrix_file(reader,writer,data,fieldnames):
             # this is record is DONE!!!
             if v_len == k_len:
                 records.append(values)
-                # print("valid record")
             else:
                 if v_len > k_len:
                     print("Still more than",row)
@@ -198,9 +176,12 @@ def read_matrix_file(reader,writer,data,fieldnames):
             i = 0
             while i < k_len:
                 # transform the format of phone number delete all the "-"
-                if i == 10 or i == 11 or i == 12:
+                if i == 8 or i == 9:
                     element[i] = element[i].replace("+64","")
                     element[i] = element[i].replace("-","")
+                    element[i] = element[i].replace("(","")
+                    element[i] = element[i].replace(")","")
+                    element[i] = element[i].replace(" ","")
                 singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
                 i += 1
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
@@ -209,9 +190,8 @@ def read_matrix_file(reader,writer,data,fieldnames):
             data[id] = dict(singleData)
             # print(data[id])
             writer.writerow(data[id])
-            num += 1
-    print("count", count)
-    print("num",num)
+            count += 1
+    print(count)
     return data
 
 
@@ -234,15 +214,12 @@ else:
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
         {'field':'address_line','type': 'String','has missing' : True},
-        {'field':'suburb','type': 'String','has missing' : True},
+        {'field':'suburb_name','type': 'String','has missing' : True},
         {'field':'city','type': 'String','has missing' : True},
         {'field':'postcode','type': 'Exact','has missing' : True},
-        {'field':'country','type': 'String','has missing' : True},
-        {'field':'dob','type': 'String','has missing' : True},
         {'field':'email','type': 'String','has missing' : True},
-        {'field':'phone_1','type': 'Exact','has missing' : True},
-        {'field':'phone_2','type': 'Exact','has missing' : True},
-        {'field':'phone_3','type': 'Exact','has missing' : True},
+        {'field':'phone_home','type': 'Exact','has missing' : True},
+        {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
 
     # Create a new deduper object and pass our data model to it.
