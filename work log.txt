@@ -1,3 +1,8 @@
+12.12
+Work I have done:
+1. Fixing bugs of reading data from matrix_file, now Matrix_file has been read, there are 633,537 records read from the file;
+2. Finish reading neighbourly_file, there are 884,524 records read from the file.
+
 12.11
 Work I have done:
 1. I am still focusing on read data from matrix file, today I figured how to extract data when the teo records are combined with each other, like this format:{'unique_id|"first_name"|"last_name"|"address_line"|"suburb"|"city"|"postcode"|"country"|"dob"|"email"|"phone_1"|"phone_2"|"phone_3"': '3323622|"PHILIP & GLENDA"|"MCDONNELL & STEWART"|"30 MILLSTREAM DRIVE"|"NORTHWOOD"|"CHRISTCHURCH 8051"|"8051"|"NEW ZEALAND"||"GLENDASTEWART25@HOTMAIL.CO', None: ['|||\n3323623"|"KEVIN"|"HENRY"|"268 MARSDEN ROAD"||"GREYMOUTH 7805"|"7805"|"NEW ZEALAND"|||||']}
