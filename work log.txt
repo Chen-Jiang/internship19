@@ -1,3 +1,14 @@
+12.13
+Work I have done:
+1. Start running active learning algorithm on the matrix_file data and neighbourly_file data, also met zerodivisionerror, fixed it after transfer empty to null;
+Problems I met:
+1. when running matrix data, there are some data problems:
+		1. there are a lot of "invalid" data, just like test data; 
+		2. some data are very strange (the last name looks like a company name);
+		3. some important information (name,email,phone number) is empty
+which may affect the result of active learning.
+
+
 12.12
 Work I have done:
 1. Fixing bugs of reading data from matrix_file, now Matrix_file has been read, there are 633,537 records read from the file;
