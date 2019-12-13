@@ -73,7 +73,6 @@ def read_neighbourly_file(reader,writer,data,fieldnames):
             if isinstance(v,list):
                 for i in range(len(v)):
                     if v[i].startswith("|") and "\n" not in v[i]:
-                        print("has aaaaa")
                         vs += "\"" + v[i][0] + "\"" + v[i][1:]
                     else:
                         vs += v[i]
@@ -182,7 +181,11 @@ def read_neighbourly_file(reader,writer,data,fieldnames):
                     element[i] = element[i].replace("(","")
                     element[i] = element[i].replace(")","")
                     element[i] = element[i].replace(" ","")
-                singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
+
+                if not element[i].strip("\"").strip():
+                    singleData[keys[i].strip("\"")] = "null"
+                else:
+                    singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
                 i += 1
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
