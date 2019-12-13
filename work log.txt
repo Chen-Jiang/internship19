@@ -2,12 +2,8 @@
 Work I have done:
 1. Start running active learning algorithm on the matrix_file data and neighbourly_file data, also met zerodivisionerror, fixed it after transfer empty to null;
 Problems I met:
-1. when running matrix data, there are some data problems:
-		1. there are a lot of "invalid" data, just like test data; 
-		2. some data are very strange (the last name looks like a company name);
-		3. some important information (name,email,phone number) is empty
-which may affect the result of active learning.
-
+1. There are some unexpected situations in the data, such as in the matrix_file, there are many records' last_name looks like company name, and I assume these data are test data wrongly during labelling these data, which leads to the bad result of active learning(just look at the result CSV file). I think when processing data, I also need to know some information about Stuff services to avoid basic information. 
+2. In the matrix_file and neighbourly_file, there are many records who misses some information(no name, no email, no phone numbers, especially misses all these key information), which makes difficult to identify the similarity between different records, I want to some other methods to see if can improve the result(such as combine with other files first then classify these data).
 
 12.12
 Work I have done:
