@@ -201,7 +201,11 @@ def read_matrix_file(reader,writer,data,fieldnames):
                 if i == 10 or i == 11 or i == 12:
                     element[i] = element[i].replace("+64","")
                     element[i] = element[i].replace("-","")
-                singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
+
+                if not element[i].strip("\"").strip():
+                    singleData[keys[i].strip("\"")] = "null"
+                else:
+                    singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
                 i += 1
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
