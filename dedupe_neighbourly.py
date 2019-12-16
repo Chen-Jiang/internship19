@@ -3,14 +3,15 @@ this file is used to read neighbourly_file to extract data from file and use act
 
 ideas about how to extract data from matrix file (the same as reading matrix_file):
 1. deal with "\n" firstly: separate records like that firstly
-2. deal with has the same makrs with delimiter
-3. deal witn the records who has less fields
+2. deal with has the same marks with delimiter
+3. deal with the records who has less fields
 
 '''
 
 from collections import defaultdict
 from collections import OrderedDict
 from future.builtins import next
+import assess_data
 
 import os
 import csv
@@ -46,6 +47,7 @@ def preProcessFile(fileName, revise_format_file):
             data = read_neighbourly_file(reader,writer,data, fieldnames)
 
         print("writing completed")
+        assess_data.assess_columns(file)
         file.close()
         return data
 
@@ -176,11 +178,12 @@ def read_neighbourly_file(reader,writer,data,fieldnames):
             while i < k_len:
                 # transform the format of phone number delete all the "-"
                 if i == 8 or i == 9:
-                    element[i] = element[i].replace("+64","")
-                    element[i] = element[i].replace("-","")
-                    element[i] = element[i].replace("(","")
-                    element[i] = element[i].replace(")","")
-                    element[i] = element[i].replace(" ","")
+                    while "+64" in element[i] or "-" in element[i] or "(" in element[i] or ")" in element[i] or " " in element[i]:
+                        element[i] = element[i].replace("+64","")
+                        element[i] = element[i].replace("-","")
+                        element[i] = element[i].replace("(","")
+                        element[i] = element[i].replace(")","")
+                        element[i] = element[i].replace(" ","")
 
                 if not element[i].strip("\"").strip():
                     singleData[keys[i].strip("\"")] = "null"
