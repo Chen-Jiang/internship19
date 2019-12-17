@@ -1,3 +1,10 @@
+12.17
+Work I have done:
+1. Today I tried to use pandas.DataFrame and regular expression to analyze the valid of each column contents, still doing experiments, not finished
+Problems I met:
+1. I first tried to use DataFrame to analyze all the columns, and I found that all the columns are assigned to object type, including the phone, postcode, then I found that there are various formats of contents users provide. Among these different formats, some are invalid information, however, some information is "about valid" like (02378298534wrk), for these mistakes, I am thinking about how to handle these information.
+2. According to yesterday's iscussion, I am thinking about that we need to preprocess original data firstly, so that we can know the validity of this column data, then we may improve the result later. So I also tried regular expression to check the validity of the data, such as, if the column is about email, it must contain only one"@"......However, I found that the reality is always complicated than our imagines, such as xxxx.xxxx#gmail.com, it is wrong accoring to the regex, however we can also extract useful information from the mistakes. i am thinking about if we can extract information from these mistakes and how to. Now I have no idea...
+
 12.16
 Work I have done:
 1. In the morning, I had weekly meeting with Bryan, and made the plan for this week, dig into the data I have, and try to know about the validity of different columns in the data, then try different columns(features) combination to run active learning ans see what the result will be. I also learned that data science needs to know a lot about the data(where does it come from, what it should be, then we can use the data as much as possible), at the same time, know about the science to deal with the data!!!
