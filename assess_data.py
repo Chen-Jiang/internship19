@@ -66,19 +66,27 @@ def assess_columns_using_dataframe_and_reg(file, fieldnames):
     print(data_framed.describe(include = 'all'))
 
     # extract all the email contents from column and save to a dictionary
-    email_records = data_framed['email'].to_dict()
     # use regex to find the valid contents' format
+    email_records = data_framed['email'].to_dict()
     em_reg = "[^@]+@[^@]+"
-    # calculate_validity_of_single_column(email_records,em_reg,"email")
+    calculate_validity_of_single_column(email_records,em_reg,"email")
+
+
+    # new zealand's phone number formats
+    # phone_reg = "([34679]{1}(\d){7}$)|(^2(\d){7}$)|(^2(\d){8}$)|(^2(\d){9}$)|(^8[367]{1}(\d){6}$)|(508(\d){6}$)|(800(\d){6}$)"
+    # consider there are many countries, and every country has several phone number formats,
+    # which means it is very hard to consider validity based on the format of the phone number
+    phone_reg = "(\d)+$"
 
     # extract all the email contents from column and save to a dictionary
     phone1_records = data_framed['phone_1'].to_dict()
-    p1_reg = "([34679]{1}(\d){7}$)|(^2(\d){7}$)|(^2(\d){8}$)|(^2(\d){9}$)|(^8[367]{1}(\d){6}$)|(508(\d){6}$)|(800(\d){6}$)"
-    calculate_validity_of_single_column(phone1_records,p1_reg,"phone1")
+    calculate_validity_of_single_column(phone1_records,phone_reg,"phone1")
 
     phone2_records = data_framed['phone_2'].to_dict()
+    calculate_validity_of_single_column(phone2_records,phone_reg,"phone2")
 
     phone3_records = data_framed['phone_3'].to_dict()
+    calculate_validity_of_single_column(phone3_records,phone_reg,"phone3")
 
 
 def calculate_validity_of_single_column(records, regexpression,name):
@@ -102,9 +110,9 @@ def calculate_validity_of_single_column(records, regexpression,name):
             em_invalid_count += 1
             # print("may not emails",v)
             # count the number of null
-            if str(v) != "nan":
+            if str(v) == "nan":
                 em_null_count += 1
-                print("may not emails",v)
+                # print("may not emails",v)
     print("may not emails count:", em_invalid_count)
     print("null contents:", em_null_count)
     # calculate the validity possibility of email column
