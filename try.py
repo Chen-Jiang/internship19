@@ -66,7 +66,7 @@ def preProcessFile(fileName, revise_format_file):
 
         print("writing completed")
         file.close()
-        assess_data.assess_columns_using_dataframe(file)
+        assess_data.assess_columns_using_dataframe(file, fieldnames)
         return data
 
 def read_matrix_file(reader,writer,data,fieldnames):
@@ -207,10 +207,10 @@ def read_matrix_file(reader,writer,data,fieldnames):
                         element[i] = element[i].replace("(","")
                         element[i] = element[i].replace(")","")
                         element[i] = element[i].replace(" ","")
-                    if element[i].startswith("0"):
-                        # print("element[i]", element[i])
-                        element[i] = element[i][1:]
-                        # print("after", element[i])
+                    for item in element[i]:
+                        if item.isalpha():
+                            print("alpha",element[i])
+                            break
 
                 if not element[i].strip("\"").strip():
                     singleData[keys[i].strip("\"")] = "null"
