@@ -1,3 +1,11 @@
+12.18
+Work I have done:
+1. When I evaluating the valid of phone_number, I found that we can combine the three columns about phone numbers(phone_1, phone_2, phone_3) as one column, so that we can improve the non-null proportion and validity of the data. And in dedupe part, we can set the phone_number "Set" type, then they can handle list as the content of field. After combining al the phone number columns, the validity has improved a little:
+	1. non-null proportion decrease by about 2%;
+	2. validity probability (only contains numbers, no length restriction because of different countries) has increased by about 3%
+2. Caculate the non-null proportion of each field.
+
+
 12.17
 Work I have done:
 1. Today I tried to use pandas.DataFrame and regular expression to analyze the valid of each column contents, still doing experiments, not finished
