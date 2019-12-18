@@ -41,8 +41,11 @@ def preProcessFile(fileName, revise_format_file):
     # read the original file, change the format and write to the new file
     with open(revise_format_file,'a') as file:
         data = {}
+        # original fieldnames
+        original_fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_1','phone_2','phone_3']
+        original_fieldnames_len = len(original_fieldnames)
         ## set new csv file's headers (all the headers from the original files)
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_1','phone_2','phone_3']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_number']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -50,30 +53,20 @@ def preProcessFile(fileName, revise_format_file):
         with open(fileName, encoding = "ISO-8859-1") as f:
             reader = csv.DictReader(f, delimiter=",", lineterminator=",")
             # all_records = {}
-            data = read_matrix_file(reader,writer,data, fieldnames)
-            print("result!!!!")
-            print("data[3323622]", data[3323622])
-            print("data[3323623]", data[3323623])
-            print("data[3381810]", data[3381810])
-            print("data[3381809]", data[3381809])
-            print("data[3644949]", data[3644949])
-            print("data[3644948]", data[3644948])
-            print("data[3702528]", data[3702528])
-            print("data[3702527]", data[3702527])
-            print("data[3804996]", data[3804996])
-            print("data[3803019]", data[3803019])
-            print("data[3322553]", data[3322553])
+            data = read_matrix_file(reader,writer,data, fieldnames, original_fieldnames_len)
 
         print("writing completed")
         file.close()
-        assess_data.assess_columns_using_dataframe(file)
+        assess_data.assess_columns_using_dataframe_and_reg(file)
         return data
 
-def read_matrix_file(reader,writer,data,fieldnames):
+def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
     keys = fieldnames
-    k_len = len(keys)
+    k_len = original_fieldnames_len  #k_len = 13;
+    output_fields_len = len(keys) #11
     count = 0
     num = 0
+    null_count = 0
 
     # read line by line
     for row in reader:
@@ -138,8 +131,6 @@ def read_matrix_file(reader,writer,data,fieldnames):
                     if "(this is a replacement)" in values[i]:
                         values[i] = values[i].replace("(this is a replacement)", "|")
 
-
-
             # revise all the format of the element in the value array
             for i in range(len(values)):
                 values[i] = values[i].lower().strip("\"")
@@ -197,26 +188,56 @@ def read_matrix_file(reader,writer,data,fieldnames):
         # if the row is valid without any processing, the len(records) = 1;
         # other situations like combvine two records in a single row, the len(records) = 2
         for element in records:
+            phone_number = []
             i = 0
-            while i < k_len:
+            while i < k_len:  #while i<13, however, the len(new_fieldnames) = 10
                 # transform the format of phone number delete all the "-"
-                if i == 10 or i == 11 or i == 12:
-                    while "+64" in element[i] or "-" in element[i] or "(" in element[i] or ")" in element[i] or " " in element[i]:
-                        element[i] = element[i].replace("+64","")
-                        element[i] = element[i].replace("-","")
-                        element[i] = element[i].replace("(","")
-                        element[i] = element[i].replace(")","")
-                        element[i] = element[i].replace(" ","")
-                    if element[i].startswith("0"):
-                        # print("element[i]", element[i])
-                        element[i] = element[i][1:]
-                        # print("after", element[i])
+                if i == 10:
+                    j = i
+                    while j < k_len:
+                        while "+64" in element[j] or "-" in element[j] or "(" in element[j] or ")" in element[j] or " " in element[j]:
+                            element[j] = element[j].replace("+64","")
+                            element[j] = element[j].replace("-","")
+                            element[j] = element[j].replace("(","")
+                            element[j] = element[j].replace(")","")
+                            element[j] = element[j].replace(" ","")
+                        if element[j].startswith("0"):
+                            # print("element[i]", element[i])
+                            element[j] = element[j][1:]
+                            # print("after", element[i])
+                        if element[j]:
+                            phone_number.append(element[j])
+                        j += 1
+                    # print("phone number list:",phone_number)
 
-                if not element[i].strip("\"").strip():
-                    singleData[keys[i].strip("\"")] = "null"
+                if i < output_fields_len-1: #i<10
+
+                    # deal with city, remove postcode part
+                    if i == 5:
+                        if element[i]:
+                            city_result = re.search("[a-z]+[^0-9]*[a-z]*",element[i])
+                            if city_result == None:
+                                element[i] = ""
+                            else:
+                                element[i] = city_result.group().strip(" ")
+
+                    # deal with postcode, make sure only numbers in the postcode
+                    if i == 6:
+                        while "-" in element[i]:
+                            element[i] = element[i].replace("-","")
+
+                    if not element[i].strip("\"").strip():
+                        singleData[keys[i].strip("\"")] = "null"
+                    else:
+                        singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
+                    i += 1
                 else:
-                    singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
-                i += 1
+                    if len(phone_number) > 0:
+                        singleData[keys[i].strip("\"")] = phone_number
+                    elif len(phone_number) == 0:
+                        singleData[keys[i].strip("\"")] = "null"
+                        null_count += 1
+                    break
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
             ## transfer orderedDict to regular dictionary
@@ -226,6 +247,7 @@ def read_matrix_file(reader,writer,data,fieldnames):
             num += 1
     print("count", count)
     print("num",num)
+    print("phone null count", null_count)
     return data
 
 
@@ -249,14 +271,12 @@ else:
         {'field':'last_name','type': 'String','has missing' : True},
         {'field':'address_line','type': 'String','has missing' : True},
         {'field':'suburb','type': 'String','has missing' : True},
-        {'field':'city','type': 'String','has missing' : True},
-        {'field':'postcode','type': 'Exact','has missing' : True},
+        {'field':'city','type': 'ShortString','has missing' : True},
+        {'field':'postcode','type': 'ShortString','has missing' : True},
         {'field':'country','type': 'String','has missing' : True},
-        {'field':'dob','type': 'String','has missing' : True},
+        {'field':'dob','type': 'String','has missing' : True, 'fuzzy' : True},
         {'field':'email','type': 'String','has missing' : True},
-        {'field':'phone_1','type': 'Exact','has missing' : True},
-        {'field':'phone_2','type': 'Exact','has missing' : True},
-        {'field':'phone_3','type': 'Exact','has missing' : True},
+        {'field':'phone_number','type': 'Set','has missing' : True},
         ]
 
     # Create a new deduper object and pass our data model to it.
