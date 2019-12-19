@@ -1,3 +1,8 @@
+12.20
+Work I have done:
+1. Fixed the bug why confidence score does not show in the output file;
+2. Run different features chosen on active learning algorithm
+
 12.19
 Work I have done:
 1. Revised the three phone_number columns into one phone_number column in the fibre_file, and run dedupe on the fibre data with different features chosen (one used all the features; the other used four features: first_name, last_name, email, phone_number). From the process, when the number of features used reduces, the running time also reduces.
