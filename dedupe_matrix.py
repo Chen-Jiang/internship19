@@ -206,7 +206,9 @@ def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
                             element[j] = element[j][1:]
                             # print("after", element[i])
                         if element[j]:
-                            phone_number.append(element[j])
+                            # if the numbers are the same, just add them once
+                            if element[j] not in phone_number:
+                                phone_number.append(element[j])
                         j += 1
                     # print("phone number list:",phone_number)
 
@@ -233,7 +235,7 @@ def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
                     i += 1
                 else:
                     if len(phone_number) > 0:
-                        singleData[keys[i].strip("\"")] = phone_number
+                        singleData[keys[i].strip("\"")] = tuple(i for i in phone_number)
                     elif len(phone_number) == 0:
                         singleData[keys[i].strip("\"")] = "null"
                         null_count += 1

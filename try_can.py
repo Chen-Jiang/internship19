@@ -1,4 +1,6 @@
-## this is to use dedupe to analyse data
+'''
+this is to revise the canonicalize() method in dedupe to see if it works for tuples in the data
+'''
 
 from collections import defaultdict
 from collections import OrderedDict
@@ -10,12 +12,16 @@ import csv
 import re
 import logging
 import optparse
+import numpy
 
 import dedupe
 from unidecode import unidecode
+from dedupe.variables import exact as exact
+from affinegap import normalizedAffineGapDistance as comparator
 
 ## files
 input_file = 'experian_fibre.csv'
+csv_output = 'fibre_csvFormat2.csv'
 # input_file = 'copy.csv'
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
@@ -105,17 +111,122 @@ def preProcessFile(fileName):
         return data
         #readData('csvFormat.csv')
 
-## read the adjusted csv file and create a dictionary of recoreds
-def readData(fileName):
+# if the csv output file has been created, just read the output file directly and
+# store the file to the data dictionary
+def read_csv_output_data(fileName):
     data = {}
     with open(fileName) as file:
         reader = csv.DictReader(file)
         for row in reader:
-            print(row)
+            singleData = {}
+            for (k,v) in row.items():
+                singleData[k] = v
+            id =row['unique_id']
+            data[id] = dict(singleData)
     return data
 
+
+def canonicalize(cluster_d):
+    """
+    Constructs a canonical representation of a duplicate cluster by
+    finding canonical values for each field
+    Arguments:
+    record_cluster     --A list of records within a duplicate cluster, where
+                         the records are dictionaries with field
+                         names as keys and field values as values
+    """
+    return getCanonicalRep(cluster_d)
+
+def getCanonicalRep(cluster_d):
+    canonical_rep = {}
+
+    keys = cluster_d[0].keys()
+
+    for key in keys:
+        key_values = []
+        for record in cluster_d:
+            print("record", record)
+            # assume non-empty values always better than empty value
+            # for canonical record
+            if record[key]:
+                key_values.append(record[key])
+        print("key_values", key_values)
+        if key_values:
+            canonical_rep[key] = getCentroid(key_values, comparator)
+            print("canonical_rep[key]", canonical_rep[key])
+        else:
+            canonical_rep[key] = ''
+
+    return canonical_rep
+
+def breakCentroidTie(attribute_variants, min_dist_indices):
+    """
+    Finds centroid when there are multiple values w/ min avg distance
+    (e.g. any dupe cluster of 2) right now this selects the first
+    among a set of ties, but can be modified to break ties in strings
+    by selecting the longest string
+    """
+    return attribute_variants[min_dist_indices[0]]
+
+def getCentroid(attribute_variants, comparator):
+    """
+    Takes in a list of attribute values for a field,
+    evaluates the centroid using the comparator,
+    & returns the centroid (i.e. the 'best' value for the field)
+    """
+
+    n = len(attribute_variants)
+
+    distance_matrix = numpy.zeros([n, n])
+
+    # populate distance matrix by looping through elements of matrix triangle
+    for i in range(0, n):
+        for j in range(0, i):
+            if isinstance(attribute_variants[i],str) and isinstance(attribute_variants[j],str):
+                print("11111111111")
+                print("attribute_variants[i]", attribute_variants[i])
+                print("attribute_variants[j]", attribute_variants[j])
+                distance = comparator(attribute_variants[i], attribute_variants[j])
+                distance_matrix[i, j] = distance_matrix[j, i] = distance
+            elif isinstance(attribute_variants[i],tuple) and isinstance(attribute_variants[j],tuple):
+                print("2222222222")
+                break_two_loops = False
+                # extract the elements from tuple and compare them
+                for a in range(len(attribute_variants[i])):
+                    for b in range(len(attribute_variants[j])):
+                        print("attribute_variants[i][a]", attribute_variants[i][a])
+                        print("attribute_variants[i][b]", attribute_variants[i][b])
+                        distance = comparator(attribute_variants[i][a], attribute_variants[j][b])
+                        # if one phone number is the same, just set the field same
+                        if distance == 1:
+                            break_two_loops = True
+                            break
+                    if break_two_loops:
+                        break
+                distance_matrix[i, j] = distance_matrix[j, i] = distance
+
+    average_distance = distance_matrix.mean(0)
+
+    # there can be ties for minimum, average distance string
+    min_dist_indices = numpy.where(
+        average_distance == average_distance.min())[0]
+
+    if len(min_dist_indices) > 1:
+        centroid = breakCentroidTie(attribute_variants, min_dist_indices)
+    else:
+        centroid_index = min_dist_indices[0]
+        centroid = attribute_variants[centroid_index]
+
+    return centroid
+
+
 print('read file...')
-data = preProcessFile(input_file)
+# check if the csv_output exists, if exist, read the file directly
+if os.path.exists(csv_output):
+    print("csv_output exists")
+    data = read_csv_output_data(csv_output)
+else:
+    data = preProcessFile(input_file)
 
 # If a settings file already exists, just load the file and skip training
 if os.path.exists(settings_file):
@@ -129,10 +240,10 @@ else:
     fields = [
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
-        {'field':'address_line','type': 'String','has missing' : True},
-        {'field':'city','type': 'String','has missing' : True},
-        {'field':'postcode','type': 'Exact','has missing' : True},
-        {'field':'country','type': 'String','has missing' : True},
+        # {'field':'address_line','type': 'String','has missing' : True},
+        # {'field':'city','type': 'String','has missing' : True},
+        # {'field':'postcode','type': 'Exact','has missing' : True},
+        # {'field':'country','type': 'String','has missing' : True},
         {'field':'email','type': 'String','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
         # {'field':'phone_mobile','type': 'Exact','has missing' : True},
@@ -189,20 +300,28 @@ for (cluster_id, cluster) in enumerate(clustered_dupes):
     print(cluster_id)
     print(cluster)
     id_set, scores = cluster
+    print("id_set", id_set)
+    print("scores", scores)
     ## cluster_d should be the whole record if it is included in the clustered_dupes
     cluster_d = [data[c] for c in id_set]
-    canonical_rep = dedupe.canonicalize(cluster_d)
+
+    print("cluster_d", cluster_d)
+    canonical_rep = canonicalize(cluster_d)
+    print("canonical_rep", canonical_rep)
     for record_id, score in zip(id_set, scores):
+        print("print...")
+        print("record_id", record_id)
         cluster_membership[record_id] = {
             "cluster id" : cluster_id,
             "canonical representation" : canonical_rep,
             "confidence": score
         }
+        print(cluster_membership[record_id])
 
 singleton_id = cluster_id + 1
 
 ## write output_file
-with open(output_file, 'w') as f_output, open('csvFormat.csv', encoding = "ISO-8859-1") as f_input:
+with open(output_file, 'w') as f_output, open(csv_output, encoding = "ISO-8859-1") as f_input:
     writer = csv.writer(f_output)
     reader = csv.reader(f_input)
 
@@ -226,6 +345,8 @@ with open(output_file, 'w') as f_output, open('csvFormat.csv', encoding = "ISO-8
         ## make sure if the record is in the same record pairs list
         if row_id in cluster_membership:
             cluster_id = cluster_membership[row_id]["cluster id"]
+            print("cluster_id", cluster_id)
+            print("onfidence", cluster_membership[row_id]['confidence'])
             canonical_rep = cluster_membership[row_id]["canonical representation"]
             row.insert(0, cluster_membership[row_id]['confidence'])
             row.insert(0, cluster_id)
