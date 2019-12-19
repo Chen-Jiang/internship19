@@ -3,6 +3,7 @@
 from collections import defaultdict
 from collections import OrderedDict
 from future.builtins import next
+import assess_data
 
 import os
 import csv
@@ -23,7 +24,7 @@ training_file = 'csvFormat_training.json'
 ## according to the dedupe examples, adjust our original csv files to a standard csv format file, and write to a new csv file
 ## preprocess the format of data
 def preProcessFile(fileName):
-    with open('csvFormat.csv','a') as file:
+    with open('fibre_csvFormat1.csv','a') as file:
         ## set new csv file's headers (all the headers from the original files)
         fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','email','phone_main','phone_mobile','phone_fax']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
@@ -72,6 +73,7 @@ def preProcessFile(fileName):
 
         print("writing completed")
         file.close()
+        assess_data.assess_columns_using_dataframe_and_reg(file)
         return data
         #readData('csvFormat.csv')
 
