@@ -1,3 +1,8 @@
+12.19
+Work I have done:
+1. Revised the three phone_number columns into one phone_number column in the fibre_file, and run dedupe on the fibre data with different features chosen (one used all the features; the other used four features: first_name, last_name, email, phone_number). From the process, when the number of features used reduces, the running time also reduces.
+2. However, I has not run the result. I have changed phone number's type into "Set", and some method(canonicalize()) can not accept this type when calculating the distance between different contents, so to make the process run, I rewrite dedupe's code. Now the whole process can run, but the output file also has a bug: the confidence score and canonicalize_contents are not shown and I am figuring out this problem now. After I fix this bug, I will keep running different number of features with dedupe to see the result.
+
 12.18
 Work I have done:
 1. When I evaluating the valid of phone_number, I found that we can combine the three columns about phone numbers(phone_1, phone_2, phone_3) as one column, so that we can improve the non-null proportion and validity of the data. And in dedupe part, we can set the phone_number "Set" type, then they can handle list as the content of field. After combining al the phone number columns, the validity has improved a little:
