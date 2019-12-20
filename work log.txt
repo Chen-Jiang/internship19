@@ -1,7 +1,11 @@
 12.20
 Work I have done:
 1. Fixed the bug why confidence score does not show in the output file;
-2. Run different features chosen on active learning algorithm
+2. In fibre_file, run different features chosen on active learning algorithm, one uses four features:first_name, last_name, email, ohone_number; the other uses all the features. After finishing the two processes, I used the evaluate code to see the performance of the two experiments:
+	The performance of the two experiments are almost the same, the accurate rate is about 93%, and when using regular expression to compare the two results, the four features seems better(I am still thinking about why), I think for this dataset, the reason why the two results are similar is that:
+		1. use the "key factor" to train data;
+		2. the NOT NULL rate is very high (first_name:99.9%;last_name:99.9%;email:98.7%;phone_number:87.1%)
+3. I also tried the experiment on the neighbourly dataset, because of the large dataset, just finished the whole process, haven't finished the evaluate process, I will update the result after finish that.
 
 12.19
 Work I have done:
