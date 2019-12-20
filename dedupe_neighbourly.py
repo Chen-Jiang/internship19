@@ -35,8 +35,11 @@ def preProcessFile(fileName, revise_format_file):
     # read the original file, change the format and write to the new file
     with open(revise_format_file,'a') as file:
         data = {}
+
+        original_fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_home','phone_mobile']
+        original_fieldnames_len = len(original_fieldnames)
         ## set new csv file's headers (all the headers from the original files)
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_home','phone_mobile']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_number']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -44,16 +47,16 @@ def preProcessFile(fileName, revise_format_file):
         with open(fileName, encoding = "ISO-8859-1") as f:
             reader = csv.DictReader(f, delimiter=",", lineterminator=",")
             # all_records = {}
-            data = read_neighbourly_file(reader,writer,data, fieldnames)
+            data = read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
 
         print("writing completed")
-        assess_data.assess_columns(file)
+        assess_data.assess_columns_using_dataframe_and_reg(file,fieldnames)
         file.close()
         return data
 
-def read_neighbourly_file(reader,writer,data,fieldnames):
+def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len):
     keys = fieldnames
-    k_len = len(keys)
+    k_len = original_fieldnames_len  #10
     count = 0
 
     # read line by line
@@ -175,21 +178,36 @@ def read_neighbourly_file(reader,writer,data,fieldnames):
         # other situations like combvine two records in a single row, the len(records) = 2
         for element in records:
             i = 0
-            while i < k_len:
-                # transform the format of phone number delete all the "-"
-                if i == 8 or i == 9:
-                    while "+64" in element[i] or "-" in element[i] or "(" in element[i] or ")" in element[i] or " " in element[i]:
-                        element[i] = element[i].replace("+64","")
-                        element[i] = element[i].replace("-","")
-                        element[i] = element[i].replace("(","")
-                        element[i] = element[i].replace(")","")
-                        element[i] = element[i].replace(" ","")
+            while i < k_len:  # i<10
+                if i == k_len-2:     # i = 8,phone_home field
+                    phone_number = []
+                    j = i
+                    while j < k_len:
+                        while "+64" in element[j] or "-" in element[j] or "(" in element[j] or ")" in element[j] or " " in element[j]:
+                            element[j] = element[j].replace("+64","")
+                            element[j] = element[j].replace("-","")
+                            element[j] = element[j].replace("(","")
+                            element[j] = element[j].replace(")","")
+                            element[j] = element[j].replace(" ","")
+                        if element[j]:
+                            # only store different phone numbers
+                            if element[j] not in phone_number:
+                                phone_number.append(element[j])
+                        j += 1
+                    if len(phone_number) > 0:
+                        singleData[keys[i].strip("\"")] = tuple(i for i in phone_number)
+                    else:
+                        singleData[keys[i].strip("\"")] = "null"
+                    break
 
-                if not element[i].strip("\"").strip():
-                    singleData[keys[i].strip("\"")] = "null"
+
                 else:
-                    singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
-                i += 1
+                    if not element[i].strip("\"").strip():
+                        singleData[keys[i].strip("\"")] = "null"
+                    else:
+                        singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
+                    i += 1
+
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
             ## transfer orderedDict to regular dictionary
@@ -224,8 +242,8 @@ else:
         {'field':'city','type': 'String','has missing' : True},
         {'field':'postcode','type': 'Exact','has missing' : True},
         {'field':'email','type': 'String','has missing' : True},
-        {'field':'phone_home','type': 'Exact','has missing' : True},
-        {'field':'phone_mobile','type': 'Exact','has missing' : True},
+        {'field':'phone_number','type': 'Set','has missing' : True},
+        # {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
 
     # Create a new deduper object and pass our data model to it.
@@ -281,11 +299,11 @@ for (cluster_id, cluster) in enumerate(clustered_dupes):
     id_set, scores = cluster
     ## cluster_d should be the whole record if it is included in the clustered_dupes
     cluster_d = [data[c] for c in id_set]
-    canonical_rep = dedupe.canonicalize(cluster_d)
+    # canonical_rep = dedupe.canonicalize(cluster_d)
     for record_id, score in zip(id_set, scores):
         cluster_membership[record_id] = {
             "cluster id" : cluster_id,
-            "canonical representation" : canonical_rep,
+            # "canonical representation" : canonical_rep,
             "confidence": score
         }
 
@@ -303,29 +321,29 @@ with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "IS
     heading_row.insert(0, 'confidence_score')
     ## the same ID represents the same record
     heading_row.insert(0, 'Cluster ID')
-    canonical_keys = canonical_rep.keys()
-    for key in canonical_keys:
-        heading_row.append('canonical_' + key)
+    # canonical_keys = canonical_rep.keys()
+    # for key in canonical_keys:
+    #     heading_row.append('canonical_' + key)
 
     writer.writerow(heading_row)
 
     for row in reader:
         # blocks = row.items().split("|")
         blocks = row[0].split("|")
-        row_id = int(blocks[0])
+        row_id = blocks[0]
         ## make sure if the record is in the same record pairs list
         if row_id in cluster_membership:
             cluster_id = cluster_membership[row_id]["cluster id"]
-            canonical_rep = cluster_membership[row_id]["canonical representation"]
+            # canonical_rep = cluster_membership[row_id]["canonical representation"]
             row.insert(0, cluster_membership[row_id]['confidence'])
             row.insert(0, cluster_id)
-            for key in canonical_keys:
-                row.append(canonical_rep[key].encode('utf8'))
+            # for key in canonical_keys:
+            #     row.append(canonical_rep[key].encode('utf8'))
         else:
             ## if the record is unique
             row.insert(0, None)
             row.insert(0, singleton_id)
             singleton_id += 1
-            for key in canonical_keys:
-                row.append(None)
+            # for key in canonical_keys:
+            #     row.append(None)
         writer.writerow(row)

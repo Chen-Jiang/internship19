@@ -57,7 +57,7 @@ def preProcessFile(fileName, revise_format_file):
 
         print("writing completed")
         file.close()
-        assess_data.assess_columns_using_dataframe_and_reg(file)
+        assess_data.assess_columns_using_dataframe_and_reg(file,fieldnames)
         return data
 
 def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
