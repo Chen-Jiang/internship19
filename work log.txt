@@ -1,7 +1,9 @@
 1.06
 Work I have done:
-1. Fixing the evaluate script so that I can use evaluate file to evaluate the performance of dedupe_neighbourly result (with four features: first_name, last_name, email, phone_number);
-2. Try to use five features (add the "address_line") to run the algorithm and compare the results with 4 features' result.
+1. Fixing the evaluate script so that I can use evaluate file to evaluate the performance of dedupe_neighbourly result (with four features: first_name, last_name, email, phone_number), The correct rate of the four features is 0.322127 (272782/846813)
+2. Try to use five features (add the "address_line") to run the algorithm and get 21070 duplicate sets and haven’t finished the evaluation process.
+Probelm I met:
+1. Running the experiments costs too much running time (especially neighbourly_file and matrix_file). I am thiniking about if the running process can be improved to reduce some running time? 
 
 12.20
 Work I have done:
