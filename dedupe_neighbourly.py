@@ -237,12 +237,12 @@ else:
     fields = [
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
-        {'field':'address_line','type': 'String','has missing' : True},
-        {'field':'suburb_name','type': 'String','has missing' : True},
-        {'field':'city','type': 'String','has missing' : True},
-        {'field':'postcode','type': 'Exact','has missing' : True},
+        # {'field':'address_line','type': 'String','has missing' : True},
+        # {'field':'suburb_name','type': 'String','has missing' : True},
+        # {'field':'city','type': 'String','has missing' : True},
+        # {'field':'postcode','type': 'Exact','has missing' : True},
         {'field':'email','type': 'String','has missing' : True},
-        {'field':'phone_number','type': 'Set','has missing' : True},
+        {'field':'phone_number','type': 'Exact','has missing' : True},
         # {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
 
@@ -330,7 +330,7 @@ with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "IS
     for row in reader:
         # blocks = row.items().split("|")
         blocks = row[0].split("|")
-        row_id = blocks[0]
+        row_id = int(blocks[0])
         ## make sure if the record is in the same record pairs list
         if row_id in cluster_membership:
             cluster_id = cluster_membership[row_id]["cluster id"]
