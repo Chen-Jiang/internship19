@@ -26,7 +26,7 @@ records pairs which was classified as "similiar"
 ## files
 
 # the input_file is the output_file from dedupe.py, changed the file name
-input_file = 'csvFormat_output.csv'
+input_file = 'csvFormat_5f_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
 same_file = 'same_records_from_learning.csv'
@@ -200,7 +200,6 @@ def compare_two_records(all_same_records,fields, field_weights,total_score):
                 sor1 += (1 - distance.sorensen(field[0],field[1])) * field_weights[fields[i]]
                 jac1 += (1 - distance.jaccard(field[0],field[1])) * field_weights[fields[i]]
             elif i == 7:
-                distance_list = []
                 # if both the two records has only one phone number, just compare them directly
                 # if at least one of them has more than one phone number, compare thses numbers one by one, and extract the biggest comparison value
                 field[0] = field[0].strip("(").strip(")")
@@ -210,22 +209,37 @@ def compare_two_records(all_same_records,fields, field_weights,total_score):
                 field1 = field[1].split(",")
                 # limit = max(len(field0),len(field1))
 
+                max = 0
+                a_p = ""
+                b_p = ""
+
                 if len(field0) <= len(field1):
                     for a in range(len(field1)): #0,1
                         for b in range(len(field0)): #0
-                            distance = Levenshtein.ratio(field0[b],field1[a])
-                            distance_list.append(distance)
+                            if field0[b] != "" and field1[a] != "":
+                                distances = Levenshtein.ratio(field0[b],field1[a])
+                                if distances >= max:
+                                    max = distances
+                                    a_p = field0[b]
+                                    b_p = field1[a]
+
                 else:
                     for a in range(len(field0)): #0,1
                         for b in range(len(field1)): #0
-                            distance = Levenshtein.ratio(field1[b],field0[a])
-                            distance_list.append(distance)
+                            if field1[b] != "" and field0[a] != "":
+                                distances = Levenshtein.ratio(field1[b],field0[a])
+                                if distances >= max:
+                                    max = distances
+                                    a_p = field0[a]
+                                    b_p = field1[b]
 
-                distance = max(distance_list[0],distance_list[1])
-
-                lev1 += distance * field_weights[fields[i]]
-                sor1 += distance * field_weights[fields[i]]
-                jac1 += distance * field_weights[fields[i]]
+                # print("a_p",a_p)
+                # print("field[0]",field0)
+                # print("field[1]",field1)
+                # print("b_p",b_p)
+                lev1 += (Levenshtein.ratio(a_p,b_p)) * field_weights[fields[i]]
+                sor1 += (1 - distance.sorensen(a_p,b_p)) * field_weights[fields[i]]
+                jac1 += (1 - distance.jaccard(a_p,b_p)) * field_weights[fields[i]]
 
 # use the sum be divided by the total sum to get the final result
 # see sum/total as the possibility of correct
