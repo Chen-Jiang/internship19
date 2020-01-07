@@ -1,3 +1,8 @@
+1.07
+Work I have done:
+1. Yesterday, I have finished using 5 features on the neighbourly_file, so I firstly run the evaluation code on the five features result, the result is bad too,0.20900(19879/95112), and when I look at the final result file, I found that the active learning algorithm set much weights on the last_name and address_line features, which is not suitable and sufficient. So I decided to train the data again, and pay attention to the weights shown during the labelling process to avoid unreasonable weights. And I will also try to revise email contents before training, reduce the @ and after @ contents.
+2. I tried to review the matrix_file and to see if there are any methods to separate the company and personal accounts. I think it is complicated, I found that several emails may belong to Stuff staffs, such as sales person or customer servicesw people, these emails will repeat several times. I will alos focus on the file and to see if some methods can be used to identify different users.
+
 1.06
 Work I have done:
 1. Fixing the evaluate script so that I can use evaluate file to evaluate the performance of dedupe_neighbourly result (with four features: first_name, last_name, email, phone_number), The correct rate of the four features is 0.322127 (272782/846813)
