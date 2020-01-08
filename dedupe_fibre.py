@@ -3,7 +3,7 @@
 from collections import defaultdict
 from collections import OrderedDict
 from future.builtins import next
-import assess_data
+# import assess_data
 
 import os
 import csv
@@ -18,6 +18,7 @@ from unidecode import unidecode
 input_file = 'experian_fibre.csv'
 csv_output = 'fibre_csvFormat2.csv'
 # input_file = 'copy.csv'
+# the last file recording matching results
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
@@ -25,11 +26,11 @@ training_file = 'csvFormat_training.json'
 ## according to the dedupe examples, adjust our original csv files to a standard csv format file, and write to a new csv file
 ## preprocess the format of data
 def preProcessFile(fileName):
-    with open('fibre_csvFormat2.csv','a') as file:
+    with open(csv_output,'a') as file:
         ## set new csv file's headers (all the headers from the original files)
         original_fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','email','phone_main','phone_mobile','phone_fax']
 
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','email','phone_number']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','email','phone_number','origin']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -47,10 +48,10 @@ def preProcessFile(fileName):
                     ## split keys and values to a list, then match every key-value pair to a dictionary
                     keys = k.split("|")  #len(keys) = 13, including ",,,"
                     values = v.split("|")
-                    output_keys_len = len(fieldnames) #output_keys_len = 10
+                    output_keys_len = len(fieldnames) #output_keys_len = 11
                     i = 0
                     ## to delete all the ",,," at the end of each row, len(keys)-1
-                    while i < output_keys_len: #i<10  len()
+                    while i < output_keys_len: #i<11  len()
                         # fields before phones
                         if i < output_keys_len-1:
                             if not values[i].strip("\"").strip("-").strip():
@@ -93,7 +94,7 @@ def preProcessFile(fileName):
                             else:
                                 singleData[fieldnames[i].strip("\"")] = "null"
                             break
-
+                    singleData["origin"] = "fibre"
                     ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
                     id = int(singleData["unique_id"])
                     ## transfer orderedDict to regular dictionary
@@ -102,7 +103,7 @@ def preProcessFile(fileName):
 
         print("writing completed")
         file.close()
-        assess_data.assess_columns_using_dataframe_and_reg(file)
+        # assess_data.assess_columns_using_dataframe_and_reg(file)
         return data
         #readData('csvFormat.csv')
 
@@ -141,14 +142,16 @@ if os.path.exists(settings_file):
 else:
     ## define the attributes
     fields = [
+        {'field':'email','type': 'String','has missing' : True},
+        {'field':'phone_number','type': 'Set','has missing' : True},
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
         # {'field':'address_line','type': 'String','has missing' : True},
         # {'field':'city','type': 'String','has missing' : True},
         # {'field':'postcode','type': 'Exact','has missing' : True},
         # {'field':'country','type': 'String','has missing' : True},
-        {'field':'email','type': 'String','has missing' : True},
-        {'field':'phone_number','type': 'Set','has missing' : True},
+        # {'field':'email','type': 'String','has missing' : True},
+        # {'field':'phone_number','type': 'Set','has missing' : True},
         # {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
 
