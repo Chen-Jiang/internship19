@@ -1,3 +1,9 @@
+1.08
+Work I have done:
+1. I tried to separate the email address in the neighbourly_file (address and domain) so that when comparing the contents, the algorithm can neglect the difference of domain. Actually, according to the result, I think separating email address can improve.
+2. I run the active learning on the neighbourly_file and trained about more than 450 instances (52 positive instances), and according to the result, I found it has improved a little bit, however, has some strange mistakes which I can not identify the reason for the classification. I will try to use a different order of features to see how dedupe train instances.
+3. To make the future matching work easier, I add a label for every record to record the file they come from.
+
 1.07
 Work I have done:
 1. Yesterday, I have finished using 5 features on the neighbourly_file, so I firstly run the evaluation code on the five features result, the result is bad too,0.20900(19879/95112), and when I look at the final result file, I found that the active learning algorithm set much weights on the last_name and address_line features, which is not suitable and sufficient. So I decided to train the data again, and pay attention to the weights shown during the labelling process to avoid unreasonable weights. And I will also try to revise email contents before training, reduce the @ and after @ contents.
