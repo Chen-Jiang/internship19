@@ -24,7 +24,6 @@ from unidecode import unidecode
 
 ## files
 input_file = 'experian_neighbourly.csv'
-# the last file recording matching results
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
@@ -40,7 +39,7 @@ def preProcessFile(fileName, revise_format_file):
         original_fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_home','phone_mobile']
         original_fieldnames_len = len(original_fieldnames)
         ## set new csv file's headers (all the headers from the original files)
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_number','origin']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','eaddress','domain','phone_number']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -180,9 +179,33 @@ def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
         for element in records:
             i = 0
             while i < k_len:  # i<10
-                if i == k_len-2:     # i = 8,phone_home field
+                if i == k_len-3:  # i =7 email field
+                    counter = element[i].count("@")
+                    # remove the domain part of the emails
+                    if counter == 1:
+                        email, domain = element[i].split("@")
+                        if not email:
+                            singleData[keys[i].strip("\"")] = "null"
+                        else:
+                            singleData[keys[i].strip("\"")] = email.lower().strip("\"")
+                        if not domain:
+                            singleData[keys[i+1].strip("\"")] = "null"
+                        else:
+                            singleData[keys[i+1].strip("\"")] = domain.lower().strip("\"")
+                    else:
+                        if not element[i].strip("\"").strip():
+                            singleData[keys[i].strip("\"")] = "null"
+                            singleData[keys[i+1].strip("\"")] = "null"
+                        else:
+                            singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
+                            singleData[keys[i+1].strip("\"")] = element[i].lower().strip("\"")
+                    i += 1
+
+
+
+                elif i == k_len-2:     # i = 8,phone_home field
                     phone_number = []
-                    j = i
+                    j = i  # j = 8
                     while j < k_len:
                         while "+64" in element[j] or "-" in element[j] or "(" in element[j] or ")" in element[j] or " " in element[j]:
                             element[j] = element[j].replace("+64","")
@@ -196,9 +219,9 @@ def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
                                 phone_number.append(element[j])
                         j += 1
                     if len(phone_number) > 0:
-                        singleData[keys[i].strip("\"")] = tuple(i for i in phone_number)
+                        singleData[keys[i+1].strip("\"")] = tuple(i for i in phone_number)
                     else:
-                        singleData[keys[i].strip("\"")] = "null"
+                        singleData[keys[i+1].strip("\"")] = "null"
                     break
 
 
@@ -208,7 +231,6 @@ def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
                     else:
                         singleData[keys[i].strip("\"")] = element[i].lower().strip("\"")
                     i += 1
-            singleData["origin"] = "neighbourly"
 
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
@@ -220,11 +242,29 @@ def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
     print(count)
     return data
 
+# if the csv output file has been created, just read the output file directly and
+# store the file to the data dictionary
+def read_csv_output_data(fileName):
+    data = {}
+    with open(fileName) as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            singleData = {}
+            for (k,v) in row.items():
+                singleData[k] = v
+            id =row['unique_id']
+            data[id] = dict(singleData)
+    return data
+
 
 print('read file...')
 n1, n2 = input_file.split(".")
 # create a new file, and store the new formatted file
 revise_format_file = n1 + '_csvFormat.csv'
+
+# if os.path.exists(revise_format_file):
+#     data = read_csv_output_data(revise_format_file)
+# else:
 data = preProcessFile(input_file, revise_format_file)
 
 # If a settings file already exists, just load the file and skip training
@@ -240,10 +280,11 @@ else:
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
         {'field':'address_line','type': 'String','has missing' : True},
-        {'field':'suburb_name','type': 'String','has missing' : True},
-        {'field':'city','type': 'String','has missing' : True},
-        {'field':'postcode','type': 'Exact','has missing' : True},
-        {'field':'email','type': 'String','has missing' : True},
+        # {'field':'suburb_name','type': 'String','has missing' : True},
+        # {'field':'city','type': 'String','has missing' : True},
+        # {'field':'postcode','type': 'Exact','has missing' : True},
+        {'field':'eaddress','type': 'String','has missing' : True},
+        {'field':'domain','type': 'String','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
         # {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
@@ -332,7 +373,7 @@ with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "IS
     for row in reader:
         # blocks = row.items().split("|")
         blocks = row[0].split("|")
-        row_id = blocks[0]
+        row_id = int(blocks[0])
         ## make sure if the record is in the same record pairs list
         if row_id in cluster_membership:
             cluster_id = cluster_membership[row_id]["cluster id"]

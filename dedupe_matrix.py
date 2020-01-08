@@ -14,7 +14,7 @@ ideas about how to extract data from matrix file:
 from collections import defaultdict
 from collections import OrderedDict
 from future.builtins import next
-import assess_data
+# import assess_data
 
 import os
 import csv
@@ -30,6 +30,7 @@ from unidecode import unidecode
 input_file = 'experian_matrix.csv'
 # input_file = 'experian_neighbourly.csv'
 # input_file = 'copy.csv'
+# the last file recording matching results
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
@@ -45,7 +46,7 @@ def preProcessFile(fileName, revise_format_file):
         original_fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_1','phone_2','phone_3']
         original_fieldnames_len = len(original_fieldnames)
         ## set new csv file's headers (all the headers from the original files)
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_number']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','dob','email','phone_number','origin']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -57,7 +58,7 @@ def preProcessFile(fileName, revise_format_file):
 
         print("writing completed")
         file.close()
-        assess_data.assess_columns_using_dataframe_and_reg(file,fieldnames)
+        # assess_data.assess_columns_using_dataframe_and_reg(file,fieldnames)
         return data
 
 def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
@@ -210,7 +211,7 @@ def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
                             if element[j] not in phone_number:
                                 phone_number.append(element[j])
                         j += 1
-                    # print("phone number list:",phone_number)
+                    print("phone number list:",phone_number)
 
                 if i < output_fields_len-1: #i<10
 
@@ -240,6 +241,7 @@ def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
                         singleData[keys[i].strip("\"")] = "null"
                         null_count += 1
                     break
+            singleData["origin"] = "matrix"
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
             ## transfer orderedDict to regular dictionary
@@ -256,7 +258,7 @@ def read_matrix_file(reader,writer,data,fieldnames,original_fieldnames_len):
 print('read file...')
 n1, n2 = input_file.split(".")
 # create a new file, and store the new formatted file
-revise_format_file = n1 + '_csvFormat.csv'
+revise_format_file = n1 + '_csvFormat1.csv'
 data = preProcessFile(input_file, revise_format_file)
 
 # If a settings file already exists, just load the file and skip training
