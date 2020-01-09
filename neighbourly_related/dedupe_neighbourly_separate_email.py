@@ -362,8 +362,6 @@ with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "IS
 
     heading_row = next(reader)
 
-    heading_row.insert(0,'origin')
-
     ## add some columns
     ## represent the similarity score
     heading_row.insert(0, 'confidence_score')
@@ -383,14 +381,12 @@ with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "IS
         if row_id in cluster_membership:
             cluster_id = cluster_membership[row_id]["cluster id"]
             # canonical_rep = cluster_membership[row_id]["canonical representation"]
-            row.insert(0,'neighbourly')
             row.insert(0, cluster_membership[row_id]['confidence'])
             row.insert(0, cluster_id)
             # for key in canonical_keys:
             #     row.append(canonical_rep[key].encode('utf8'))
         else:
             ## if the record is unique
-            row.insert(0,'neighbourly')
             row.insert(0, None)
             row.insert(0, singleton_id)
             singleton_id += 1
