@@ -1,3 +1,8 @@
+1.09
+Work I have done:
+1. Change the order of features and run the active learning algorithm on the neighbourly_file, According to the result, the features which are given weights are also first_name and address_line, however after training about more than 750 instances( 46 positive instances), the correct_classified rate is about 0.38, higher than the previous result;
+2. Update the script about analyzing the neighbourly_file;
+
 1.08
 Work I have done:
 1. I tried to separate the email address in the neighbourly_file (address and domain) so that when comparing the contents, the algorithm can neglect the difference of domain. Actually, according to the result, I think separating email address can improve.
