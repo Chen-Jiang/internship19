@@ -16,7 +16,7 @@ from unidecode import unidecode
 
 ## files
 input_file = 'experian_fibre.csv'
-csv_output = 'fibre_csvFormat2.csv'
+csv_output = 'fibre_csvFormat.csv'
 output_file = 'csvFormat_output.csv'
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
@@ -28,7 +28,7 @@ def preProcessFile(fileName):
         ## set new csv file's headers (all the headers from the original files)
         original_fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','email','phone_main','phone_mobile','phone_fax']
 
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','email','phone_number','origin']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','eaddress','domain','phone_number','origin']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -46,15 +46,14 @@ def preProcessFile(fileName):
                     ## split keys and values to a list, then match every key-value pair to a dictionary
                     keys = k.split("|")  #len(keys) = 13, including ",,,"
                     values = v.split("|")
-                    output_keys_len = len(fieldnames) #output_keys_len = 11
+                    output_keys_len = len(fieldnames) #output_keys_len = 12
                     i = 0
                     ## to delete all the ",,," at the end of each row, len(keys)-1
-                    while i < output_keys_len: #i<11  len()
+                    while i < output_keys_len: #i<12  len()
                         # fields before phones
-                        if i < output_keys_len-2:  # i < 9
+                        if i < output_keys_len-3:  # if i < 8
                             if not values[i].strip("\"").strip("-").strip():
                                 values[i] = "null"
-                                i += 1
                             else:
                                 if "," not in values[i]:
                                     ## delete all the "" of the words
@@ -69,8 +68,20 @@ def preProcessFile(fileName):
                                     ## delete all the "" of the words
                                         singleData[fieldnames[i]] = contents[j].lower().strip("\"")
                                         i = i + 1
+
+                        # when comes to email field
+                        if i == output_keys_len-4:  # i = 8
+                            counter = values[i].count("@")
+                            if counter == 1:
+                                email, domain = values[i].strip("\"").split("@")
+                                singleData[fieldnames[i]] = email
+                                singleData[fieldnames[i+1]] = domain
+                            else:
+                                singleData[fieldnames[i]] = values[i]
+                                singleData[fieldnames[i+1]] = values[i]
+                            i += 1
                         # when comes to phone field
-                        else:  # i = 9
+                        elif i == output_keys_len-3:  # i == 9
                             j = i # j = 9
                             while j < len(keys)-1: # j=9,10,11
                                 # preprocess the format of phone number
@@ -89,9 +100,9 @@ def preProcessFile(fileName):
                                         phone_number.append(values[j])
                                 j += 1
                             if len(phone_number) > 0:
-                                singleData[fieldnames[i].strip("\"")] = tuple(i for i in phone_number)
+                                singleData[fieldnames[i+1].strip("\"")] = tuple(i for i in phone_number)
                             else:
-                                singleData[fieldnames[i].strip("\"")] = "null"
+                                singleData[fieldnames[i+1].strip("\"")] = "null"
                             break
                     singleData["origin"] = "fibre"
                     ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
@@ -146,7 +157,8 @@ else:
         {'field':'city','type': 'String','has missing' : True},
         {'field':'postcode','type': 'Exact','has missing' : True},
         {'field':'country','type': 'String','has missing' : True},
-        {'field':'email','type': 'String','has missing' : True},
+        {'field':'eaddress','type': 'String','has missing' : True},
+        {'field':'domain','type': 'String','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
         ]
 
