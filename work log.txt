@@ -1,3 +1,10 @@
+1.10
+Work I have done:
+1. Update all the fibre related files to make sure all the experiments can be tried;
+2. I separate the email field into eaddress and domain of the fibre file and run the following algorithm. Because in the fibre file, the not null rate of email is very high, about 0.9, so when separate email field, the first part of email address works very good.
+3. I tried train part features(first_name, last_name, eaddress, domain and phone_number) and all features in the fibre_file, because of the high not null rate, both the accurate is more than 0.9, and when using all the features, the algorithm found more effective duplicates.
+4. I want to try to use the training model trained from fibre_file on neighbourly_file to see what the result will be. because the training model of the fibre_file may work better than neighbourly's model. I will update the result, after finish this experiment.
+
 1.09
 Work I have done:
 1. Change the order of features and run the active learning algorithm on the neighbourly_file, According to the result, the features which are given weights are also first_name and address_line, however after training about more than 750 instances( 46 positive instances), the correct_classified rate is about 0.38, higher than the previous result;
