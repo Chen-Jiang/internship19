@@ -91,16 +91,28 @@ def combine_same_records(same_records,fieldNames):
             elif len(field_values) == 1:
                 combined_dict[fieldNames[i]] = field_values[0]
         elif i == 10:
+            phone_list = []
             for index in same_records:
+                single_phone_list = []
                 phone = same_records[index][fieldNames[i]]
-
                 if phone != "null":
                     phone = phone.strip("(").strip(")").strip(",")
+                    # print(phone)
                     if "," in phone:
-                        
-                    print(phone)
-                else:
-                    print("hahaha")
+                        single_phone_list = phone.split(", ")
+                        for m in range(len(single_phone_list)):
+                            single_phone_list[m] = single_phone_list[m].strip("\'")
+                    elif "," not in phone:
+                        single_phone_list.append(phone.strip("\'"))
+                    # print("single_phone_list",single_phone_list)
+                    phone_list.extend(single_phone_list)
+            if len(phone_list) == 0:
+                combined_dict[fieldNames[i]] = "null"
+            else:
+                # remove duplicates in the phone_list
+                phone_list = list(dict.fromkeys(phone_list))
+                combined_dict[fieldNames[i]] = tuple(item for item in phone_list)
+            # print("phone list", combined_dict[fieldNames[i]])
 
 
     return combined_dict
