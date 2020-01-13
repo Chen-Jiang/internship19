@@ -6,12 +6,15 @@ ideas about how to extract data from matrix file (the same as reading matrix_fil
 2. deal with has the same marks with delimiter
 3. deal with the records who has less fields
 
+The last final output is called "neighbourly_output.csv", which added country column in the file
+
 '''
 
 from collections import defaultdict
 from collections import OrderedDict
 from future.builtins import next
 import assess_neighbourly_data as assess_data
+import add_country_to_final_result as add_country
 
 import os
 import csv
@@ -39,7 +42,7 @@ def preProcessFile(fileName, revise_format_file):
         original_fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','email','phone_home','phone_mobile']
         original_fieldnames_len = len(original_fieldnames)
         ## set new csv file's headers (all the headers from the original files)
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb_name','city','postcode','eaddress','domain','phone_number','origin']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','eaddress','domain','phone_number','origin']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -277,18 +280,15 @@ if os.path.exists(settings_file):
 else:
     ## define the attributes
     fields = [
-        {'field':'eaddress','type': 'String','has missing' : True},
-        {'field':'domain','type': 'String','has missing' : True},
-        {'field':'phone_number','type': 'Set','has missing' : True},
         {'field':'first_name','type': 'String','has missing' : True},
         {'field':'last_name','type': 'String','has missing' : True},
         {'field':'address_line','type': 'String','has missing' : True},
-        # {'field':'suburb_name','type': 'String','has missing' : True},
-        # {'field':'city','type': 'String','has missing' : True},
-        # {'field':'postcode','type': 'Exact','has missing' : True},
-        # {'field':'eaddress','type': 'String','has missing' : True},
-        # {'field':'domain','type': 'String','has missing' : True},
-        # {'field':'phone_number','type': 'Set','has missing' : True},
+        {'field':'suburb','type': 'String','has missing' : True},
+        {'field':'city','type': 'String','has missing' : True},
+        {'field':'postcode','type': 'Exact','has missing' : True},
+        {'field':'eaddress','type': 'String','has missing' : True},
+        {'field':'domain','type': 'String','has missing' : True},
+        {'field':'phone_number','type': 'Set','has missing' : True},
         # {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
 
@@ -393,3 +393,6 @@ with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "IS
             # for key in canonical_keys:
             #     row.append(None)
         writer.writerow(row)
+
+# add the country column at last
+add_country.add_country_column(output_file)
