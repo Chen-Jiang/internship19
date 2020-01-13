@@ -1,3 +1,8 @@
+1.13
+Work I have done:
+1. When I run the model getting from fibre_file on the neighbourly_file, I found that neighbourly_file miss one column: Country; so I tried to remove the country from fibre_file and add the country column to the neighbourly file. And I found that the algorithm seems can not support such operation, it can not finish the process.
+2. I started to do the matching between files, I planned to try this method first: run the single file first, and combine the same records to one record, then combine with other files. So I write a file to combine the same records to one record, still have several bugs, I will update it late today.
+
 1.10
 Work I have done:
 1. Update all the fibre related files to make sure all the experiments can be tried;
