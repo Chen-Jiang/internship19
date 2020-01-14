@@ -71,7 +71,7 @@ def write_to_new_file(file):
                     same_records[count] = all_records[ele]
                     count += 1
                 new_record[num] = combine_same_records(same_records)
-                print("new row",new_record[num] )
+                # print("new row",new_record[num] )
                 writer.writerow(new_record[num])
             end2 = datetime.now()
             print("finish time:", end2)
@@ -114,14 +114,11 @@ def combine_same_records(same_records):
                 value = item[fieldNames[i]].strip("\"").strip(" ")
                 if item[fieldNames[i]] != "null":
                     if value not in field_values:
-                        print("value:",value)
                         field_values.append(item[fieldNames[i]].strip("\"").strip(" "))
             # if the rows have several different values, keep these values inside a tuple,
             # and add the tuple as the final value of this field
-            print("field_values", field_values)
             if len(field_values) > 0:
                 combined_dict[fieldNames[i]] = tuple(j for j in field_values)
-                print("hh", combined_dict[fieldNames[i]])
             # if the several value of this field is the same, the final value of this field is just one value
             elif len(field_values) == 0:
                 combined_dict[fieldNames[i]] = "null"
