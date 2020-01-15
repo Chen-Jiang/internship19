@@ -1,3 +1,12 @@
+1.15
+Work I have done:
+1. Fixed bugs of dedupe_join_files and run the program on the fibre_file and neighbourly_file, these are findings:
+	1. In general, I think the result looks good, I checked some records which are classified "same record", most of them are from the same user;
+	2. The program not only fond the same users in different files and also checked within the same file again and also found some same records within the same file again;
+	3. The time consumed reduced a lot (before labelling, and after labelling), I assumed this is because I transformed the type of field to Set, I will check the assumption.
+2. Write the evaluate_combined file so that I can know the specific performance of this training. I haven't finished this part, will update the file after finish it.
+3. Log in database successfully.
+
 1.14
 Work I have done:
 1. update the combine_same_records program and reduced running time;
