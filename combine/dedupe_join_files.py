@@ -7,35 +7,96 @@ the output should be a new csv file which records all the same records of the tw
 
 '''
 
+from collections import defaultdict
+from collections import OrderedDict
+from future.builtins import next
+
 import csv
+import os
+import logging
+import optparse
+from datetime import datetime
+
+import dedupe
+from unidecode import unidecode
 
 input1 = "combined_fibre.csv"
 input2 = "combined_neighbourly.csv"
+combined_file = "combined.csv"
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
+output_file = 'combined_output.csv'
 
 
-def read_joined_files(input1,input2):
+def read_separate_files(input1,input2):
 
-    joined_data = {}
+    print("start reading two filed...")
+    t1 = datetime.now()
+    print("t1:",t1)
+    data = {}
+    index = 0
+    unique_id = 0
+
+    fields = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','eaddress','domain','phone_number','origin']
+
+    with open(combined_file,'a') as combined_output:
+
+        writer = csv.DictWriter(combined_output, fieldnames=fields, extrasaction='ignore')
+        writer.writeheader()
+
+        with open(input1,encoding = "ISO-8859-1") as input1:
+            reader1 = csv.DictReader(input1, delimiter=",", lineterminator=",")
+            # print(type(reader1))
+            # print("reader1", reader1)
+            for row in reader1:
+                single_row = dict(row)
+                single_row['unique_id'] = unique_id
+                data[index] = single_row
+                writer.writerow(data[index])
+                unique_id += 1
+                # print("new record",data[index])
+                index += 1
+
+        t2 = datetime.now()
+        print("t2:",t2)
+
+        with open(input2,encoding = "ISO-8859-1") as input2:
+            reader2 = csv.DictReader(input2, delimiter=",", lineterminator=",")
+            for row in reader2:
+                single_row = dict(row)
+                single_row['unique_id'] = unique_id
+                data[index] = single_row
+                writer.writerow(data[index])
+                unique_id += 1
+                # print("new record",data[index])
+                index += 1
+        t3 = datetime.now()
+        print("t3:",t3)
+
+    print("joined_data length:", len(data))
+    return data
+
+def read_combined_file(combined_file):
+
+    data = {}
     index = 0
 
-    with open(input1,encoding = "ISO-8859-1") as input1:
-        reader1 = csv.DictReader(input1, delimiter=",", lineterminator=",")
-
-        for row in reader1:
-            joined_data[index] = dict(row)
+    with open(combined_file, encoding = "ISO-8859-1") as input:
+        reader = csv.DictReader(input, delimiter=",", lineterminator=",")
+        for row in reader:
+            # print("row",row)
+            data[index] = dict(row)
             index += 1
+        print("data length:", len(data))
+    return data
 
-    with open(input2,encoding = "ISO-8859-1") as input2:
-        reader2 = csv.DictReader(input2, delimiter=",", lineterminator=",")
-        for row in reader2:
-            joined_data[index] = dict(row)
-            index += 1
-
-    print("input:", joined_data)
-
-data = read_joined_files(input1, input2)
+print("start...")
+start = datetime.now()
+if os.path.exists(combined_file):
+    print("combined.csv exists...")
+    data = read_combined_file(combined_file)
+else:
+    data = read_separate_files(input1, input2)
 
 # If a settings file already exists, just load the file and skip training
 if os.path.exists(settings_file):
@@ -50,9 +111,9 @@ else:
         {'field':'first_name','type': 'Set','has missing' : True},
         {'field':'last_name','type': 'Set','has missing' : True},
         {'field':'address_line','type': 'Set','has missing' : True},
-        {'field':'suburb','type': 'Set','has missing' : True},
+        # {'field':'suburb','type': 'Set','has missing' : True},
         {'field':'city','type': 'Set','has missing' : True},
-        {'field':'postcode','type': 'Set','has missing' : True},
+        # {'field':'postcode','type': 'Set','has missing' : True},
         {'field':'eaddress','type': 'Set','has missing' : True},
         {'field':'domain','type': 'Set','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
@@ -123,7 +184,7 @@ for (cluster_id, cluster) in enumerate(clustered_dupes):
 singleton_id = cluster_id + 1
 
 ## write output_file
-with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "ISO-8859-1") as f_input:
+with open(output_file, 'w') as f_output, open(combined_file, encoding = "ISO-8859-1") as f_input:
     writer = csv.writer(f_output)
     reader = csv.reader(f_input)
 
@@ -160,3 +221,6 @@ with open(output_file, 'w') as f_output, open(revise_format_file, encoding = "IS
             # for key in canonical_keys:
             #     row.append(None)
         writer.writerow(row)
+
+end = datetime.now()
+print("Time needs: ", end-start)
