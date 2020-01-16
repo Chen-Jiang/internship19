@@ -1,3 +1,8 @@
+1.16
+Work I have done:
+1. Finish the code about evaluating the performance of dedupe_join_files, and run the evaluation code on the result calculated yesterday, the accurate_rate is about 0.89 (if the matching score between the two records is higher than 0.5, the classification is valid), and I will also see the average confidence_score to know the performance better.
+2. Get the new Matrix database which contains subscriber's type label, So I start to understand the dataset first to see how to separate and handle the dataset.
+
 1.15
 Work I have done:
 1. Fixed bugs of dedupe_join_files and run the program on the fibre_file and neighbourly_file, these are findings:
