@@ -1,3 +1,9 @@
+1.17
+Work I have done:
+1. Got to understand the new Matrix dataset, at first I thought all the types of customers should be analyzed so I checked all kinds of records, including what these records are about, and if they belonged to personal or company. 
+2. Finish extracting records of HOMESUB and BUSSUB into two different CSV files, including transformed the original columns to be the same with fibre's and neighbourly's.
+3. Prepared to revise the original dedupe_matrix file according to the situation of the current files.
+
 1.16
 Work I have done:
 1. Finish the code about evaluating the performance of dedupe_join_files, and run the evaluation code on the result calculated yesterday, the accurate_rate is about 0.89 (if the matching score between the two records is higher than 0.5, the classification is valid), and I will also see the average confidence_score to know the performance better.
