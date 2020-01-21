@@ -1,3 +1,11 @@
+1.21
+Work I have done:
+1. Fixed bugs and improve the separate_matrix file so that the whole process is better, such as change the type of fields from object to tuple;
+2. For HOMESUB, just see them as normal accounts which can be compared with fibre file and neighbourly file; for BUSSUB, compare if any same companies within the file at first and try other methods if there are any new findings;
+3. Update all the matrix related files including assess_data, dedupe_matrix and evaluate_matrix so that all the files can be run based on the tuple type;
+4. Run the dedupeio on HOMESUB accounts, and found that when the type of fields are all Set, it will reduce a lot of running time, just about 6 minutes before training, whereas needs about 1-2 hours when using object type; I used first_name, lase_name, address_line, city, eaddress, domain and phone_number as features, the accurate rate(the proportion of instances whose matching scores is more than 0.5) is about 0.89346 and the average matching score is about 0.67328.
+5. The result getting from HOMESUB is not very good when seeing the concrete similar record pairs, and I found that there are some phone_numbers have lots of duplicate, and in this training model, phone_number is a key cause, so I tried to preprocess the file (to remove some unreasonable data) then to see if it can improve the result;
+
 1.17
 Work I have done:
 1. Got to understand the new Matrix dataset, at first I thought all the types of customers should be analyzed so I checked all kinds of records, including what these records are about, and if they belonged to personal or company. 
