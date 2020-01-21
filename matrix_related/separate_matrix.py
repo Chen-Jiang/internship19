@@ -66,53 +66,59 @@ def separate_matrix_file(record):
 
     id = record['subs_id']
     all_fields_values.append(id)
-    all_fields_values.append(record['first_name'].lower())
-    all_fields_values.append(record['last_name'].lower())
+    f1 = []
+    f1.append(record['first_name'].lower())
+    all_fields_values.append(tuple(i for i in f1))
+    f1 = []
+    f1.append(record['last_name'].lower())
+    all_fields_values.append(tuple(i for i in f1))
 
     # AddrLine3,4 will be combined to address_line
     add3 = record['AddrLine3'].lower()
     add4 = record['AddrLine4'].lower()
     address_line = add3 + "," + add4
     if "null" in address_line:
-        address_line = re.sub('NULL','',address_line)
+        address_line = re.sub('null','',address_line)
     address_line = address_line.strip(" ,")
-    all_fields_values.append(address_line)
+    f1 = []
+    f1.append(address_line)
+    all_fields_values.append(tuple(i for i in f1))
 
     # AddrLine5 will be suburb
     add5 = record['AddrLine5'].lower()
     suburb = add5
-    all_fields_values.append(suburb)
+    f1 = []
+    f1.append(suburb)
+    all_fields_values.append(tuple(i for i in f1))
     # print("suburb",suburb)
 
     # AddrLine6 will be city and postcode
     add6 = record['AddrLine6'].lower()
+    has_city = re.search(r'[a-zA-Z]+',add6)
+    if has_city:
+        city = re.search(r'[a-zA-Z]+(\s)*[a-zA-Z]*',add6).group(0)
+    else:
+        city = "null"
+    f1 = []
+    f1.append(city)
+    all_fields_values.append(tuple(i for i in f1))
+    # print("city",city)
+
+    f1 = []
+    f1.append(record['CountryName'].lower())
+    all_fields_values.append(tuple(i for i in f1))
+
+
     has_postcode = re.search(r'[0-9]+$',add6)
     if has_postcode:
         postcode = re.search(r'(\s)*[0-9]+$',add6)
         postcode = postcode.group(0).strip(" ")
     else:
         postcode = "null"
-    all_fields_values.append(postcode)
+    f1 = []
+    f1.append(postcode)
+    all_fields_values.append(tuple(i for i in f1))
     # print("postcode",postcode)
-
-    has_city = re.search(r'[a-zA-Z]+',add6)
-    if has_city:
-        city = re.search(r'[a-zA-Z]+(\s)*[a-zA-Z]*',add6).group(0)
-    else:
-        city = "null"
-    all_fields_values.append(city)
-    # print("city",city)
-
-    all_fields_values.append(record['CountryName'].lower())
-
-    # Home, Work, Mobile combined to phone_number
-    for i in range(4,7):
-        mobile = record[original_fields[i]]
-        if mobile != "NULL" and mobile not in phone:
-            phone.append(mobile)
-    phone_number = phone
-    all_fields_values.append(phone_number)
-    # print("phone_number", phone_number, type(phone_number))
 
     # PersContact3 will be eaddress and domain
     email = record['PersContact3'].lower()
@@ -124,12 +130,30 @@ def separate_matrix_file(record):
             email = "null"
         eaddress = email
         domain = email
-    all_fields_values.append(eaddress)
-    all_fields_values.append(domain)
+    f1 = []
+    f1.append(eaddress)
+    all_fields_values.append(tuple(i for i in f1))
+    f1 = []
+    f1.append(domain)
+    all_fields_values.append(tuple(i for i in f1))
+
+    # Home, Work, Mobile combined to phone_number
+    for i in range(4,7):
+        mobile = record[original_fields[i]]
+        if mobile != "NULL" and mobile not in phone:
+            phone.append(mobile)
+    phone_number = phone
+    if len(phone_number) > 0:
+        all_fields_values.append(tuple(i for i in phone_number))
+    elif len(phone_number) == 0:
+        all_fields_values.append("null")
+    # print("phone_number", phone_number, type(phone_number))
 
     # origin will be "matrix" + subtype_id
     origin = "matrix_" + record['subtype_id'].lower()
-    all_fields_values.append(origin)
+    f1 = []
+    f1.append(origin)
+    all_fields_values.append(tuple(i for i in f1))
     # put this record into the new dict so that can be writen into the file
 
     # step3: parse the record to different method according to the subtype_id
