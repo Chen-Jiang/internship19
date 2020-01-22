@@ -11,11 +11,11 @@ each file will contain only one type of users
 import csv
 from datetime import datetime
 import re
+import check_validity_of_data as check
 
 input = "matrix_label.csv"
 home_output = "home_output.csv"
 bussiness_output = "business_output.csv"
-
 
 # read the original file and write to new file
 def read_and_write_files(fileName):
@@ -23,7 +23,10 @@ def read_and_write_files(fileName):
     output = ["HOMESUB_output.csv", "BUSSUB_output.csv"]
     fields = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','eaddress','domain','phone_number','origin']
 
+    # new_dict = {}
+
     for s in range(len(output)):
+        new_dict = {}
         with open(output[s],"a") as file:
             writer = csv.DictWriter(file, fieldnames=fields, extrasaction='ignore')
             writer.writeheader()
@@ -42,14 +45,27 @@ def read_and_write_files(fileName):
                         # print(homesub_and_bussub_records[row['subs_id']])
                 t2 = datetime.now()
                 print("extract all the record needs:", t2-t1)
+                # check the validity of different columns
+                # type_records = check.check_columns(type_records, fields)
+                # check.check_columns(type_records, fields)
 
                 t3 = datetime.now()
                 for item in type_records:
                     update_record = separate_matrix_file(type_records[item])
+                    new_dict[update_record['unique_id']] = update_record
                     # print("update_record", type(update_record), update_record)
-                    writer.writerow(update_record)
+                t3 = datetime.now()
+                print("create new_dict needs:", t3-t2)
+                if s == 0:
+                    new_dict = check.check_home_columns(new_dict,fields)
+                elif s == 1:
+                    new_dict = check.check_bus_columns(new_dict,fields)
+
+                for item in new_dict:
+                    writer.writerow(new_dict[item])
                 t4 = datetime.now()
                 print("Writing finished, time need:",t4-t3)
+        # check.check_columns(output[s])
 
 
 # revise and combine the columns to be aligned with other two files;
@@ -140,7 +156,7 @@ def separate_matrix_file(record):
     # Home, Work, Mobile combined to phone_number
     for i in range(4,7):
         mobile = record[original_fields[i]]
-        if mobile != "NULL" and mobile not in phone:
+        if mobile != "NULL" and mobile != "invalid" and mobile not in phone:
             phone.append(mobile)
     phone_number = phone
     if len(phone_number) > 0:
