@@ -5,7 +5,7 @@ Work I have done:
 Things I learned:
 1. During the analyzing, I should also focus on the data itself, sometimes we can find the abnormal parts of the data, and if we can handling the abnormal part firstly, we can get a much better result;
 The question I met:
-1. In the BUSSUB file, there is too much missing information, it is hard for me to label if the two records are the same or not;
+1. In the BUSSUB file, there is too much missing information, it is hard for me to label if the two records are the same or not; For example, several records has the same address, however, they do not have company name,contact name, email and phone, they may be the same company, they also may different companies.
 
 1.21
 Work I have done:
