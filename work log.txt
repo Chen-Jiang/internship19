@@ -1,3 +1,12 @@
+1.22
+Work I have done:
+1. Finish check_validity_of_data and deal with the unreasonable data in the HOMESUB and BUSSUB file. In HOMESUB file, phone_numbers which are repeated a lot of times(more than 10 times), I replace these phone_numbers with "invalid"; In BUSSUB file, "accounts payable" as last_name repeated more than 2000 times, so I replaced them with "invalid";
+2. Run the algorithm on the preprocessed data. From seeing the result file, the result will be much better than the previous one, because of the better quality of phone_number, according to evaluation_matrix, the proportion of records identified correctly is increased to 0.98891, and the average matching score is about 0.68631;
+Things I learned:
+1. During the analyzing, I should also focus on the data itself, sometimes we can find the abnormal parts of the data, and if we can handling the abnormal part firstly, we can get a much better result;
+The question I met:
+1. In the BUSSUB file, there is too much missing information, it is hard for me to label if the two records are the same or not;
+
 1.21
 Work I have done:
 1. Fixed bugs and improve the separate_matrix file so that the whole process is better, such as change the type of fields from object to tuple;
