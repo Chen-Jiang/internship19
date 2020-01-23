@@ -1,3 +1,10 @@
+1.23
+Work I have done:
+1. check the result of BUSSUB's results and the proportion of identifying correctly is about 0.61556, and the average matching score is about 0.594, and also from seeing the output file, the identifying work is quite bad...the missing information is too much which make it difficult to decide if these are the similar records;
+2. I don't know how to identify if the records are similar or not based on the current information; the expected result is that all the different departments or branches of the same country can be identified as the same record; May come to the database to see more details?
+3. check the validity of columns of the fibre file and neighbourly file. The fibre file's data quality is quite good, checked the repeats of address_line and phone_number, the repeats are quite limited and reasonable.
+4. Update the dedupe_fibre and dedupe_neighbourly to make all the fields' type is Set, fixing bugs
+
 1.22
 Work I have done:
 1. Finish check_validity_of_data and deal with the unreasonable data in the HOMESUB and BUSSUB file. In HOMESUB file, phone_numbers which are repeated a lot of times(more than 10 times), I replace these phone_numbers with "invalid"; In BUSSUB file, "accounts payable" as last_name repeated more than 2000 times, so I replaced them with "invalid";
