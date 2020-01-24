@@ -42,7 +42,7 @@ def preProcessFile(fileName):
         # if need to check the repeats of field values, set this to True
         need_to_check_column = False
 
-        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','postcode','country','eaddress','domain','phone_number','origin']
+        fieldnames = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','eaddress','domain','phone_number','origin']
         writer = csv.DictWriter(file, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
 
@@ -76,7 +76,12 @@ def preProcessFile(fileName):
                                     # lower all the words to make sure all these letters are capital insensible
                                     this_value = values[i].lower().strip("\"")
                                     tem_values.append(this_value)
-                                    singleData[fieldnames[i]] = tuple(s for s in tem_values)
+                                    if i == 6:
+                                        singleData[fieldnames[i+1]] = tuple(s for s in tem_values)
+                                    elif i == 7:
+                                        singleData[fieldnames[i-1]] = tuple(s for s in tem_values)
+                                    else:
+                                        singleData[fieldnames[i]] = tuple(s for s in tem_values)
                                     i += 1
                                     ## some contents are written in a single cell
                                     ## separate into different cells
@@ -101,9 +106,17 @@ def preProcessFile(fileName):
                                 singleData[fieldnames[i]] = tuple(s for s in email_value)
                                 singleData[fieldnames[i+1]] = tuple(s for s in domain_value)
                             else:
-                                tem_values.append(values[i])
-                                singleData[fieldnames[i]] = tuple(s for s in tem_values)
-                                singleData[fieldnames[i+1]] = tuple(s for s in tem_values)
+                                # print("email",values[i],type(values[i]))
+                                # if values[i] == "":
+                                #     print(1)
+                                #     singleData[fieldnames[i]] = "null"
+                                #     singleData[fieldnames[i+1]] = "null"
+                                #     print(singleData[fieldnames[i]],singleData[fieldnames[i+1]])
+                                # else:
+                                email_values = []
+                                email_values.append(values[i])
+                                singleData[fieldnames[i]] = tuple(s for s in email_values)
+                                singleData[fieldnames[i+1]] = tuple(s for s in email_values)
                             i += 1
                         # when comes to phone field
                         elif i == output_keys_len-3:  # i == 9
@@ -240,8 +253,8 @@ print('# duplicate sets', len(clustered_dupes))
 cluster_membership = {}
 cluster_id = 0
 for (cluster_id, cluster) in enumerate(clustered_dupes):
-    print(cluster_id)
-    print(cluster)
+    # print(cluster_id)
+    # print(cluster)
     id_set, scores = cluster
     print("id_set", id_set)
     print("scores", scores)
@@ -252,7 +265,7 @@ for (cluster_id, cluster) in enumerate(clustered_dupes):
     # canonical_rep = dedupe.canonicalize(cluster_d)
     # print("canonical_rep", canonical_rep)
     for record_id, score in zip(id_set, scores):
-        # print("print...")
+        print("print...",type(record_id))
         cluster_membership[record_id] = {
             "cluster id" : cluster_id,
             # "canonical representation" : canonical_rep,
@@ -281,8 +294,8 @@ with open(output_file, 'w') as f_output, open(csv_output, encoding = "ISO-8859-1
 
     for row in reader:
         # blocks = row.items().split("|")
-        blocks = row[0].split("|")
-        row_id = blocks[0]
+        # blocks = row[0].split("|")
+        row_id = row[0]
         ## make sure if the record is in the same record pairs list
         if row_id in cluster_membership:
             # print("inside memebership")
