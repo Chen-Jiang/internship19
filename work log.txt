@@ -1,3 +1,10 @@
+1.24
+Work I have done:
+1. Fixed bugs of dedupe files (fibre, neighbourly and matrix_homesub);
+2. Update the combine_same_records because I have changed the field type from object to tuple;
+Problems I have met:
+1. I replaced some invalid contents to "invalid" or "null", however, during the training process, these contents are seen as valid contents, how to handle such a situation?
+
 1.23
 Work I have done:
 1. check the result of BUSSUB's results and the proportion of identifying correctly is about 0.61556, and the average matching score is about 0.594, and also from seeing the output file, the identifying work is quite bad...the missing information is too much which make it difficult to decide if these are the similar records;
