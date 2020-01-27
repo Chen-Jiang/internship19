@@ -1,3 +1,9 @@
+1.27
+Work I have done:
+1. Fixed bugs of combine_same_records and make sure it can be used on all the data files;
+2. Listed all the files handling every step;
+3. Checked and fixed bugs of combine_join_files and checked it on every two files;
+
 1.24
 Work I have done:
 1. Fixed bugs of dedupe files (fibre, neighbourly and matrix_homesub);
