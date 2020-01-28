@@ -196,25 +196,25 @@ def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
                     if counter == 1:
                         email, domain = element[i].split("@")
                         if not email:
-                            singleData[keys[i].strip("\"")] = "null"
+                            singleData[keys[i]] = "null"
                         else:
                             email_value = []
                             email_value.append(email.lower().strip("\""))
-                            singleData[keys[i].strip("\"")] = tuple(s for s in email_value)
+                            singleData[keys[i]] = tuple(s for s in email_value)
                         if not domain:
-                            singleData[keys[i+1].strip("\"")] = "null"
+                            singleData[keys[i+1]] = "null"
                         else:
                             domain_value = []
                             domain_value.append(domain.lower().strip("\""))
-                            singleData[keys[i+1].strip("\"")] = tuple(s for s in domain_value)
+                            singleData[keys[i+1]] = tuple(s for s in domain_value)
                     else:
                         if not element[i].strip("\"").strip():
-                            singleData[keys[i].strip("\"")] = "null"
-                            singleData[keys[i+1].strip("\"")] = "null"
+                            singleData[keys[i]] = "null"
+                            singleData[keys[i+1]] = "null"
                         else:
                             tem_values.append(element[i].lower().strip("\""))
-                            singleData[keys[i].strip("\"")] = tuple(s for s in tem_values)
-                            singleData[keys[i+1].strip("\"")] = tuple(s for s in tem_values)
+                            singleData[keys[i]] = tuple(s for s in tem_values)
+                            singleData[keys[i+1]] = tuple(s for s in tem_values)
                     i += 1
 
                 elif i == k_len-2:     # i = 8,phone_home field
@@ -233,22 +233,25 @@ def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
                                 phone_number.append(element[j])
                         j += 1
                     if len(phone_number) > 0:
-                        singleData[keys[i+1].strip("\"")] = tuple(i for i in phone_number)
+                        singleData[keys[i+1]] = tuple(i for i in phone_number)
                     else:
-                        singleData[keys[i+1].strip("\"")] = "null"
+                        singleData[keys[i+1]] = "null"
                     break
 
 
                 else:
                     if not element[i].strip("\"").strip():
-                        singleData[keys[i].strip("\"")] = "null"
+                        singleData[keys[i]] = "null"
                     else:
                         tem_values.append(element[i].lower().strip("\""))
-                        singleData[keys[i].strip("\"")] = tuple(s for s in tem_values)
+                        singleData[keys[i]] = tuple(s for s in tem_values)
                     i += 1
             origin_value = []
             origin_value.append("neighbourly")
             singleData["origin"] = tuple(s for s in origin_value)
+            for ele in singleData:
+                if singleData[ele] == "null" or singleData[ele][0] == "null":
+                    singleData[ele] = None
             ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
             id = int(singleData["unique_id"].strip("\""))
             ## transfer orderedDict to regular dictionary
@@ -309,7 +312,7 @@ else:
         {'field':'city','type': 'Set','has missing' : True},
         # {'field':'postcode','type': 'Set','has missing' : True},
         {'field':'eaddress','type': 'Set','has missing' : True},
-        {'field':'domain','type': 'Set','has missing' : True},
+        # {'field':'domain','type': 'Set','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
         ]
     # Create a new deduper object and pass our data model to it.
