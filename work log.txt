@@ -1,3 +1,9 @@
+1.28
+Work I have done:
+1. I have fixed the missing value from "null" to None so that these "null" values will not be seen as normal value, and also update all the files so that the missing values will be None;
+2. I ran the whole steps including finding similar records within a single file and combine file to find similar records; and found that the number of missing value in the Matrix file (has been separated into homesub file bussub file) is quite a lot which will affect the performance of the algorithm. Another interesting finding is that  when combining file with fibre (which is very relatively complete), fibre can provide complete information, so I decided to tried to combine homesub and fibre file firstly to see the result;
+3. I revised the combine_same_records file: if the confidence_score is very low. I do not combine these records as one record;
+
 1.27
 Work I have done:
 1. Fixed bugs of combine_same_records and make sure it can be used on all the data files;
