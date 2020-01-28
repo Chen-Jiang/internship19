@@ -52,7 +52,6 @@ def preProcessFile(fileName):
             ## create a dictionary: data to store all the records
             data = {}
             for row in reader:
-
                 phone_number = []
                 for (k,v) in row.items():
                     ## create a dictionry to store the single records
@@ -106,13 +105,6 @@ def preProcessFile(fileName):
                                 singleData[fieldnames[i]] = tuple(s for s in email_value)
                                 singleData[fieldnames[i+1]] = tuple(s for s in domain_value)
                             else:
-                                # print("email",values[i],type(values[i]))
-                                # if values[i] == "":
-                                #     print(1)
-                                #     singleData[fieldnames[i]] = "null"
-                                #     singleData[fieldnames[i+1]] = "null"
-                                #     print(singleData[fieldnames[i]],singleData[fieldnames[i+1]])
-                                # else:
                                 email_values = []
                                 email_values.append(values[i])
                                 singleData[fieldnames[i]] = tuple(s for s in email_values)
@@ -138,13 +130,19 @@ def preProcessFile(fileName):
                                         phone_number.append(values[j])
                                 j += 1
                             if len(phone_number) > 0:
-                                singleData[fieldnames[i+1].strip("\"")] = tuple(i for i in phone_number)
+                                singleData[fieldnames[i+1]] = tuple(i for i in phone_number)
                             else:
-                                singleData[fieldnames[i+1].strip("\"")] = "null"
+                                singleData[fieldnames[i+1]] = "null"
                             break
                     origin_value = []
                     origin_value.append("fibre")
                     singleData["origin"] = tuple(s for s in origin_value)
+                    # print("olde singleData", singleData)
+                    for ele in singleData:
+                        # print(singleData[ele],type(singleData[ele]),singleData[ele])
+                        if singleData[ele][0] == "null" or singleData[ele] == "null":
+                            singleData[ele] = None
+                    # print("new singleData", singleData)
                     ## add the single record to data dictionary, key is the unique_id of the records, and the value is all the contents
                     id = int(singleData["unique_id"])
                     ## transfer orderedDict to regular dictionary
@@ -201,7 +199,7 @@ else:
         # {'field':'postcode','type': 'Set','has missing' : True},
         # {'field':'country','type': 'Set','has missing' : True},
         {'field':'eaddress','type': 'Set','has missing' : True},
-        {'field':'domain','type': 'Set','has missing' : True},
+        # {'field':'domain','type': 'Set','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
         ]
 

@@ -17,7 +17,7 @@ from datetime import datetime
 # input = "neighbourly_output.csv"
 # output = "combined_neighbourly.csv"
 input = "csvFormat_output.csv"
-output = "combined_fibre1.csv"
+output = "combined_matrix_home.csv"
 
 
 def write_to_new_file(file):

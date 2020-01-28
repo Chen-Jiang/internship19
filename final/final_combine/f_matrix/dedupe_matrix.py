@@ -72,7 +72,7 @@ else:
         # {'field':'postcode','type': 'Set','has missing' : True},
         # {'field':'country','type': 'Set','has missing' : True},
         {'field':'eaddress','type': 'Set','has missing' : True},
-        {'field':'domain','type': 'Set','has missing' : True},
+        # {'field':'domain','type': 'Set','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
         ]
 

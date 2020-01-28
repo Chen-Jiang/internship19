@@ -175,7 +175,12 @@ def separate_matrix_file(record):
 
     # step3: parse the record to different method according to the subtype_id
     for m in range(len(fields)):
-        update_record[fields[m]] = all_fields_values[m]
+        # print("value:",all_fields_values[m])
+        if all_fields_values[m][0] == "null" or all_fields_values[m] == "null":
+            update_record[fields[m]] = None
+        else:
+            update_record[fields[m]] = all_fields_values[m]
+        # print("new value:",update_record[fields[m]])
 
 
     return update_record
