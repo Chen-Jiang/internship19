@@ -1,3 +1,9 @@
+1.29
+WorK I have done:
+1. I tried run algorithm on the matrix_homesub file, and the result is quite bad due to the incompletion of information so I tried to not run the algorithm on the matrix file alone, and run the algorithm on the fibre and matrix_homesub, neighbourly and matrix_homesub simultaneously, the result is not good either.
+2. I also revised the combine_same_records so that the matching score lower than 0.6 will not be combined as one record so that they can be identified again in the new algorithm;
+3. For the matrix file problem, I reviewed the matrix file and found that the address_line has a lot of strange information, r d 1(2/3/4...) has hundreds of records, and during the training, address_line is a key factor, so I decided to remove all the values which are repeated a lot of times, then I run the algorithm on the matrix_homesub only and found that the performance has improved a lot;
+
 1.28
 Work I have done:
 1. I have fixed the missing value from "null" to None so that these "null" values will not be seen as normal value, and also update all the files so that the missing values will be None;
