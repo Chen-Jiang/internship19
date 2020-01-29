@@ -12,12 +12,13 @@ plus: the fields' type is tuple rather than object
 
 import csv
 from datetime import datetime
+from decimal import *
 
 
-# input = "neighbourly_output.csv"
-# output = "combined_neighbourly.csv"
-input = "csvFormat_output.csv"
-output = "combined_matrix_home.csv"
+input = "neighbourly_output.csv"
+output = "combined_neighbourly.csv"
+# input = "fibre_output.csv"
+# output = "combined_fibre.csv"
 
 
 def write_to_new_file(file):
@@ -44,22 +45,30 @@ def write_to_new_file(file):
             new_record = {}
             num = 0
             n = 0
+            unsatisfied_matching = {}
 
             print("1")
             # all_records store all the recoreds from neighbourly file
             for row in reader:
                 all_records[row['unique_id']] = dict(row)
                 if row['confidence_score']:
-                    # duplicate_records is a dictionary, the key is the cluster id and the value is a list containing all the records' unique_id who has the same cluster id
-                    # like {'0':[19991,82763],'1':[7883,90938]}
-                    if row['Cluster ID'] not in duplicate_records.keys():
-                        value = []
-                        value.append(row['unique_id'])
-                        duplicate_records[row['Cluster ID']] = value
-                    elif row['Cluster ID'] in duplicate_records.keys():
-                        values = duplicate_records[row['Cluster ID']]
-                        values.append(row['unique_id'])
-                        duplicate_records[row['Cluster ID']] = values
+                    if Decimal(row['confidence_score']) >= 0.6 and row['Cluster ID'] not in unsatisfied_matching.keys():
+                        if row['Cluster ID'] not in duplicate_records.keys():
+                            value = []
+                            value.append(row['unique_id'])
+                            duplicate_records[row['Cluster ID']] = value
+                        elif row['Cluster ID'] in duplicate_records.keys():
+                            values = duplicate_records[row['Cluster ID']]
+                            values.append(row['unique_id'])
+                            duplicate_records[row['Cluster ID']] = values
+                    else:
+                        # unsatisfied_matching: {'2':'2837','63737'}
+                        if row['Cluster ID'] not in unsatisfied_matching.keys():
+                            value = []
+                            value.append(row['unique_id'])
+                            unsatisfied_matching[row['Cluster ID']] = value
+                            unique_records[n] = dict(row)
+                            n += 1
                 else:
                     unique_records[n] = dict(row)
                     n += 1
@@ -126,13 +135,16 @@ def combine_same_records(same_records):
                     tem_list = (value.split("\', \'"))  # need to remove '' later "" will added to every element automatically
                     for item in tem_list:
                         item = item.strip("\"").strip("\'")
-                        if item not in field_values and value != 'null':
+                        if item not in field_values and value != None and value != "":
                             field_values.append(item)
                 else:
-                    if value.strip("\'") not in field_values and value.strip("\'") != 'null':
+                    if value.strip("\'") not in field_values and value.strip("\'") != None and value.strip("\'") != "":
                         field_values.append(value.strip("\'"))
             else:
-                if value not in field_values and value != 'null':
+                # print(222)
+                # print("value",value)
+                if value not in field_values and value != "":
+                    # print(333)
                     field_values.append(value)
         # if the rows have several different values, keep these values inside a tuple,
         # and add the tuple as the final value of this field
@@ -140,7 +152,7 @@ def combine_same_records(same_records):
             combined_dict[fieldNames[i]] = tuple(j for j in field_values)
         # if the several value of this field is the same, the final value of this field is just one value
         elif len(field_values) == 0:
-            combined_dict[fieldNames[i]] = "null"
+            combined_dict[fieldNames[i]] = None
 
     return combined_dict
 
