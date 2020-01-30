@@ -1,3 +1,9 @@
+1.30
+Work I have done:
+1. Almost all the processes which are used to identify matching records(personal customers) have been done, and after I remove "strange" address+line from homesub files, the performance of homesub has been improved a lot;
+2. I ran the whole process today, and when comes to use dedupe on the joint files, I tried different combinations to see if there are any differences, I haven't finished all the combinations yet, and will update the result later;
+3. Started to write the code about creating the final file, to combine some fields so that make it more readable;
+
 1.29
 WorK I have done:
 1. I tried run algorithm on the matrix_homesub file, and the result is quite bad due to the incompletion of information so I tried to not run the algorithm on the matrix file alone, and run the algorithm on the fibre and matrix_homesub, neighbourly and matrix_homesub simultaneously, the result is not good either.
