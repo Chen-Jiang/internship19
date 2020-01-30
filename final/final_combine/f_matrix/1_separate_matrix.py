@@ -157,6 +157,8 @@ def separate_matrix_file(record):
     # Home, Work, Mobile combined to phone_number
     for i in range(4,7):
         mobile = record[original_fields[i]]
+        if mobile.startswith("0"):
+            mobile = mobile[1:]
         if mobile != "NULL" and mobile != "invalid" and mobile not in phone:
             phone.append(mobile)
     phone_number = phone

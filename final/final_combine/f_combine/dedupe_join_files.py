@@ -1,6 +1,6 @@
 '''
 
-This is to read joined files(combined_fibre.csv, combined_neighbourly.csv, combined_matrix_home.csv) and then run active learning algorithm on the joined data
+This is to read joined files and then run active learning algorithm on the joined data
 
 the input is two files (here is combined_fibre.csv and combined_neighbourly.csv)
 the output should be a new csv file which records all the same records of the two datasets
@@ -22,15 +22,12 @@ from unidecode import unidecode
 
 input1 = "combined_fibre.csv"
 input2 = "combined_neighbourly.csv"
-input3 = "combined_matrix_home.csv"
-# input = ["combined_fibre", "combined_neighbourly", "combined_matrix_home"]
 combined_file = "combined.csv"
 settings_file = 'csvFormat_learned_settings'
 training_file = 'csvFormat_training.json'
 output_file = 'combined_output.csv'
 
 
-# read two files every time and save them to a dictionary called data which is passed to the active learning algorithm
 def read_separate_files(input1,input2):
 
     print("start reading two filed...")
@@ -53,7 +50,6 @@ def read_separate_files(input1,input2):
             # print("reader1", reader1)
             for row in reader1:
                 single_row = dict(row)
-                # rewrite the original unique_id
                 single_row['unique_id'] = unique_id
                 data[index] = single_row
                 writer.writerow(data[index])
@@ -77,7 +73,6 @@ def read_separate_files(input1,input2):
         t3 = datetime.now()
         print("t3:",t3)
 
-    print("Writing finished...")
     print("joined_data length:", len(data))
     return data
 
@@ -120,7 +115,7 @@ else:
         {'field':'city','type': 'Set','has missing' : True},
         # {'field':'postcode','type': 'Set','has missing' : True},
         {'field':'eaddress','type': 'Set','has missing' : True},
-        {'field':'domain','type': 'Set','has missing' : True},
+        # {'field':'domain','type': 'Set','has missing' : True},
         {'field':'phone_number','type': 'Set','has missing' : True},
         # {'field':'phone_mobile','type': 'Exact','has missing' : True},
         ]
@@ -209,7 +204,6 @@ with open(output_file, 'w') as f_output, open(combined_file, encoding = "ISO-885
     for row in reader:
         # blocks = row.items().split("|")
         blocks = row[0].split("|")
-        print("row[0]",row[0],type(row[0]))
         row_id = int(blocks[0])
         ## make sure if the record is in the same record pairs list
         if row_id in cluster_membership:

@@ -15,10 +15,10 @@ from datetime import datetime
 from decimal import *
 
 
-input = "matrix_output.csv"
-output = "combined_matrix.csv"
-# input = "fibre_output.csv"
-# output = "combined_fibre.csv"
+# input = "fibre&matrix_result.csv"
+# output = "combined_fibre&matrix_result.csv"
+input = "combined_output.csv"
+output = "final_combined_result.csv"
 
 
 def write_to_new_file(file):
