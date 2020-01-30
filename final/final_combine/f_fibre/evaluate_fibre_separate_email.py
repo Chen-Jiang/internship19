@@ -1,265 +1,183 @@
-import csv
-import codecs
+'''
+
+This is to evaluate the performance of dedupe_join_files
+the major difference between this evaluation and others lies that almost all the fields' type are Set
+
+input is combined_output.csv
+output will be the accurate rate from this training shown on the terminal
+
+'''
+
 import Levenshtein, distance
-import evaluate_re as reg
+import csv
+from datetime import datetime
+
+input = "csvFormat_output.csv"
 
 
-"""
-This is to evaluate the performance of active learning algorithm
-by checking if the result should be the same user
+def calculate_two_recoeds_score(field_values, fields_len):
 
-when a user write down these information, it is possible that the contexts
-will be different in some degree, so just regular expression may not be sufficient
-String metric analysis may be used
-maybe two methods:
-1. combine different fields;
-2. analyze field by field, different matching result will get different marks or weights
+    field_score = 0
+    # print("222",field_values, type(field_values),len(field_values))
+
+    if len(field_values) == 2:
+
+        lev = 0
+        sor = 0
+        jac = 0
+
+        score = 0
+        need_break = False
+
+        v0 = field_values[0]
+        v1 = field_values[1]
+        for i in range(len(v0)):
+            if not need_break:
+                for j in range(len(v1)):
+                    if v0[i] != "null" and v1[j] != "null" and v0[i] != "" and v1[j] != "" and v0[i] != " " and v1[j] != " ":
+                        lev = Levenshtein.ratio(v0[i],v1[j])
+                        sor = 1 - distance.sorensen(v0[i],v1[j])
+                        jac = 1 - distance.jaccard(v0[i],v1[j])
+
+                        aver = (lev+sor+jac)/3
+
+                    elif v0[i] == "null" or v1[j] == "null" or v0[i] == "" or v1[j] == "" or v0[i] == " " or v1[j] == " ":
+                        aver = 0
+
+                    if aver == 1:
+                        score = aver
+                        need_break = True
+                        break
+                    elif aver < 1 and aver > score:
+                        score = aver
+            else:
+                break
+        field_score = score
+
+    elif len(field_values) > 2:
+        field_score = 0
+
+    return field_score
+
+def compare_same_records(same_records):
+
+    compare_score = 0
+    fields = []      # fields = ['Cluster ID', 'confidence_score', 'unique_id', 'first_name', 'last_name', 'address_line', 'suburb', 'city', 'country', 'postcode', 'eaddress', 'domain', 'phone_number', 'origin']
+    keys = same_records[0].keys()
+
+    for item in keys:
+        fields.append(item)
+    same_records_len = len(same_records)
+
+    for i in range(3,len(fields)-1):
+        field_values = [] # this list should contain tuple type elements
+        for j in range(same_records_len):
+            single_field_values = []  # store single_field_values, the element's type is tuple
+            # same_records[j] is dict, same_records[j][fields[i]] is String
+            value = same_records[j][fields[i]].strip("\"").strip("(").strip(")").strip(",")
+            if "," not in value:
+                single_field_values.append(value.strip("\'"))
+            else:
+                value = value.strip("\'")
+                single_field_values = value.split("\', \'")
+                for m in range(len(single_field_values)):
+                    single_field_values[m] = single_field_values[m].strip("\'")
+            single_field_values_tuple = tuple(s for s in single_field_values)
+            field_values.append(single_field_values_tuple)
+            # print("here field_values:", field_values)
+
+            # field_values.append(same_records[j][fields[i]])   # the element inside field_value is tuple
+        compare_score += calculate_two_recoeds_score(field_values, len(fields))
+
+    compare_score = compare_score/11
+
+    # compare_score is the total mating score of the two records
+    return compare_score
 
 
-calculate the ratio of records pairs correctly classified out of all
-records pairs which was classified as "similiar"
+def extract_same_records(file):
 
-"""
+    output = "combined_same_records.csv"
+    all_same_records = {}
+    index = 0
+    cluster_id = {}
+    total_score = 0
+    compare_score = 0
+    accurate_rate = 0
+    valid_count = 0
+    average_matching_score = 0
 
+    with open(output,'a') as output:
 
-## files
+        headers = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','eaddress','domain','phone_number','origin']
 
-# the input_file is the output_file from dedupe.py, changed the file name
-input_file = 'csvFormat_output.csv'
-settings_file = 'csvFormat_learned_settings'
-training_file = 'csvFormat_training.json'
-same_file = 'same_records_from_learning.csv'
-test_file = 'test.csv'
-
-# setting up methods
-use_regular_expression = True
-
-# extract all the records which are labeled "same user" and save to another csv file
-def extract_same_records(fileName):
-    with open(same_file,'w', newline = '\n') as output:
-        fieldnames = ['Cluster ID','confidence_score','unique_id','first_name','last_name','address_line','suburb','city','postcode','country','eaddress','domain','phone_number','origin']
-        writer = csv.DictWriter(output, fieldnames=fieldnames, extrasaction='ignore')
+        writer = csv.DictWriter(output, fieldnames=headers, extrasaction='ignore')
         writer.writeheader()
-        data = {}
 
-        with open(fileName,'r') as file:
-            # if add "delimeter" within the DictReader, row['first_name'] can not be read
-            reader = csv.DictReader(file)
+        with open(file, encoding="ISO-8859-1") as f:
+            reader = csv.DictReader(f, delimiter=",", lineterminator=",")
+
+            start = datetime.now()
 
             for row in reader:
-                score = row['confidence_score']
-                # all therecords' confidence_score is a string, no matter has contents or not
-                # if score exists
-                if score:
-                    id = row['unique_id']
-                    data[id] = dict(row)
-                    writer.writerow(data[id])
+                if row['confidence_score']:
+                    if row['Cluster ID'] not in cluster_id.keys():
+                        values = []
+                        records = []
+                        # make the values list be the value of this key
+                        values.append(row['unique_id'])
+                        cluster_id[row['Cluster ID']] = values
+                        # make the records list be the value of this key
+                        records.append(dict(row))
+                        all_same_records[row['Cluster ID']] = records
+                    else:
+                        values = []
+                        records = []
+                        # add the former list
+                        values.extend(cluster_id[row['Cluster ID']])
+                        # add the new unique_id to the original list and make it be the value of this key
+                        values.append(row['unique_id'])
+                        cluster_id[row['Cluster ID']] = values
+                        # extract the value of this key and add the new value to it
+                        records.extend(all_same_records[row['Cluster ID']])
+                        records.append(dict(row))
+                        all_same_records[row['Cluster ID']] = records
+            end1 = datetime.now()
+            print("extract same records needs:", end1-start)
 
-    gather_same_records(same_file)
+            for item in cluster_id:
+                same_group = {}
+                # get an array containing the whole records
+                same_group = all_same_records[item]
+                for ele in same_group:
+                    writer.writerow(ele)
+                if len(same_group) == 2:
+                    total_score += 1
+                    compare_score = compare_same_records(same_group)
+                    if compare_score > 0.5:
+                        valid_count += 1
+                        average_matching_score += compare_score
+                elif len(same_group) > 2:
+                    for a in range(len(same_group)-1):  # a=0,1 b=1,2
+                        for b in range(a+1,len(same_group)):
+                            part_group = []
+                            part_group.append(same_group[a])
+                            part_group.append(same_group[b])
+                            total_score += 1
+                            compare_score = compare_same_records(part_group)
+                            if compare_score > 0.5:
+                                valid_count += 1
+                                average_matching_score += compare_score
 
+            # calculate the accurate rate, use the number of valid matching among all the groups / the total number of groups
+            accurate_rate = valid_count/total_score
+            print("number of instances accurate_rate:", accurate_rate)
 
-# choose fields which can be compared
-# first_name, last_name, address_line, city, postcode, country, email, phone_number
-def gather_same_records(fileName):
-
-    all_data = {}
-    exist_id = []
-    num_of_valid_predict = 0
-    correct_rate = 0
-    # num_of_pairs = 0
-    #  read the same_record to a dictionary
-    with open(fileName,'r') as file:
-        print("same")
-        reader = csv.DictReader(file)
-
-        # there are two situations: two same records and multiple records
-        # create a single dictionry for every similar records block
-        id = 0
-        for row in reader:
-            all_data[id] = dict(row)
-            id += 1
-        total_count = len(all_data)
-        print("len(all_data)", total_count)
-
-        # store all the same records to avoid compare twice
-        # store as a dictionary so that easy to search
-        same_records_id = {}
-        num_of_pairs = 0
-
-        # find all the same blocks among all the records, and compare them
-        for r1 in all_data:
-
-            if r1 not in same_records_id.keys():
-                same_records_id[r1] = r1
-                index  = 0
-                same_record = {}
-                same_record[index] = all_data[r1]
-                for r2 in all_data:
-                    if r1 != r2:
-                        if all_data[r1]['Cluster ID'] == all_data[r2]['Cluster ID']:
-                            index += 1
-                            same_record[index] = all_data[r2]
-                            same_records_id[r2] = r2
-                if len(same_record) == 2:
-                    num_of_pairs += int(1)
-                    print("len(same_record)", len(same_record))
-                else:
-                    a = len(same_record)
-                    print("len(same_record)", len(same_record))
-                    num_of_pairs += int((a * (a-1))/2)
-                print("total pairs", num_of_pairs)
-                # till now, similar record blocks has been found, and every block is stored in a dictionary, can be compared now
-                # return the num of records which are classified correctly
-                # (use string metrics and the similarity rate is more than 0.5)
-                # num_of_re_valid_predict += compare_same_records(same_record)
-                num_of_valid_predict += compare_same_records(same_record)
-                print("num_of_valid_predict1", num_of_valid_predict)
-
-        # calculate the ratio of records pairs correctly classified out of all
-        # records pairs which was classified as "similiar"
-        print("len(all_data)", total_count)
-        print("total compare pairs", num_of_pairs)
-        correct_rate = num_of_valid_predict/num_of_pairs
-        print("correct_pair_rate", correct_rate)
-
-# used when similiar record blocks are identified, the input is a dictionary of
-# one block of same records
-def compare_same_records(all_same_records):
-    # setting up all the fields into a block
-    fields = ['first_name','last_name','address_line','suburb','city','postcode','country','eaddress','domain','phone_number']
-
-    # setting weightes for different fields manually
-    # how to revise the weights so that correct preferences during active learning learning precess?
-    field_weights = {
-    fields[0]:0.7,
-    fields[1]:0.7,
-    fields[2]:0.4,
-    fields[3]:0.4,
-    fields[4]:0.4,
-    fields[5]:0.4,
-    fields[6]:0.4,
-    fields[7]:0.9,
-    fields[8]:0,
-    fields[9]:0.9
-    }
-
-    total_score = 5.2
-
-    # method 2: using regular expressin to calculate the similarity
-    if use_regular_expression:
-        # if there are only two same records in the block:
-        if len(all_same_records) == 2:
-            return reg.compare_two_records_with_re(all_same_records,fields,field_weights,total_score)
-        # if there are more than 2 same records in the block:
-        else:
-            return reg.compare_more_than_two_records_with_re(all_same_records,fields,field_weights,total_score)
-
-    # use string metrics method
-    else:
-        if len(all_same_records) == 2:
-            return compare_two_records(all_same_records, fields, field_weights,total_score)
-        else:
-            return compare_more_than_two_records(all_same_records,fields, field_weights,total_score)
+            average_matching_score = average_matching_score/valid_count
+            print("average matching score among valid pairs:", average_matching_score)
 
 
-# calculate the similarity between the two contents using the single feature
-# comparison method, and times the weights to get the final similarity score
-# of the two records
-def compare_two_records(all_same_records,fields, field_weights,total_score):
+            end2 = datetime.now()
+            print("calculate accuracy needs:", end2-end1)
 
-    print("start comparing two.....")
-    print(len(all_same_records))
-    for re in all_same_records:
-        print(all_same_records[re])
-
-    lev1 = 0
-    lev2 = 0
-    sor1 = 0
-    sor2 = 0
-    jac1 = 0
-    jac2 = 0
-
-    for i in range(len(fields)):
-        field = []
-        for record in all_same_records:
-            name = all_same_records[record][fields[i]]
-            field.append(name)
-
-        # apply the String_similarity_single_feature to the single field
-        # let the similarity times the weight of different fields
-        # those with empty and "null" seen as 0 similarity
-        if field[0] != "" and field[0] != "null" and field[1] != "" and field[1] != "null":
-            lev1 += (Levenshtein.ratio(field[0],field[1])) * field_weights[fields[i]]
-            sor1 += (1 - distance.sorensen(field[0],field[1])) * field_weights[fields[i]]
-            jac1 += (1 - distance.jaccard(field[0],field[1])) * field_weights[fields[i]]
-
-# use the sum be divided by the total sum to get the final result
-# see sum/total as the possibility of correct
-    lev_ave = lev1/total_score
-    sor_ave = sor1/total_score
-    jac_ave = jac1/total_score
-    final_score = (lev_ave + sor_ave + jac_ave)/3
-    print("final_score", final_score)
-
-    # can try other threshold
-    # use three methods and average the three results
-    # if lev_ave > 0.5 and sor_ave > 0.5 and jac_ave > 0.5:
-    if final_score > 0.5:
-        return 1
-    else:
-        return 0
-
-def compare_more_than_two_records(all_same_records,fields, field_weights,total_score):
-
-    print("start comparing more than 2 records....")
-    total = len(all_same_records)
-    # print(total)
-    total_combinations = (total * (total-1))/2
-
-    num_of_valid_predict = 0
-
-    # record the number of blocks correctly classified
-    num_of_correct_sub_blocks = 0
-
-    result = []
-
-    for i in range(total):
-        for j in range(total):
-            # compare ith and jth records in the block every time
-            if i < j:
-                lev1 = 0
-                lev2 = 0
-                sor1 = 0
-                sor2 = 0
-                jac1 = 0
-                jac2 = 0
-                for s in range(len(fields)):
-                    field = []
-                    field.append(all_same_records[i][fields[s]])
-                    field.append(all_same_records[j][fields[s]])
-                    # apply the String_similarity_single_feature to the single field
-                    # let the similarity times the weight of different fields
-                    # those with empty and "null" seen as 0 similarity
-                    if field[0] != "" and field[0] != "null" and field[1] != "" and field[1] != "null":
-                        lev1 += (Levenshtein.ratio(field[0],field[1])) * field_weights[fields[s]]
-                        sor1 += (1 - distance.sorensen(field[0],field[1])) * field_weights[fields[s]]
-                        jac1 += (1 - distance.jaccard(field[0],field[1])) * field_weights[fields[s]]
-
-                # use the sum be divided by the total sum to get the final result
-                # see sum/total as the possibility of correct
-                lev_ave = lev1/total_score
-                sor_ave = sor1/total_score
-                jac_ave = jac1/total_score
-                final_score = (lev_ave + sor_ave + jac_ave)/3
-
-                result.append(final_score)
-
-                # if lev_ave > 0.5 or sor_ave > 0.5 or jac_ave > 0.5:
-                # combine the three results coming from three methods
-                if final_score > 0.5:
-                    num_of_correct_sub_blocks += 1
-
-    return num_of_correct_sub_blocks
-
-
-extract_same_records(input_file)
+extract_same_records(input)

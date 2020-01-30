@@ -12,7 +12,7 @@ import Levenshtein, distance
 import csv
 from datetime import datetime
 
-input = "matrix_output.csv"
+input = "neighbourly_output.csv"
 
 
 def calculate_two_recoeds_score(field_values, fields_len):

@@ -228,6 +228,8 @@ def read_neighbourly_file(reader,writer,data,fieldnames,original_fieldnames_len)
                             element[j] = element[j].replace(")","")
                             element[j] = element[j].replace(" ","")
                         if element[j]:
+                            if element[j].startswith("0"):
+                                element[j] = element[j][1:]
                             # only store different phone numbers
                             if element[j] not in phone_number:
                                 phone_number.append(element[j])

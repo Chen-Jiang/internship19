@@ -15,10 +15,8 @@ from datetime import datetime
 from decimal import *
 
 
-input = "neighbourly_output.csv"
-output = "combined_neighbourly.csv"
-# input = "fibre_output.csv"
-# output = "combined_fibre.csv"
+input = "fibre_output.csv"
+output = "combined_fibre.csv"
 
 
 def write_to_new_file(file):
