@@ -1,3 +1,10 @@
+1.31
+Work I have done:
+1. When modifying the final result, I found that it hard to merge emails together because eaddress and domain has several combinations and we do not know which are the real email address, so I add the email column into the file and tested the function already;
+2. I ran the whole process(three files run dedupe.io separately firstly, then ran dedupe.io on fibre and neighbourly, then ran dedupe.io on the matrix and the result file), the result is listed below:the proportion of classified correctly is about 0.6945;the average matching score is about 0.69968;
+3. I also tried to run the dedupe.io on the three files directly, which reduced the running time a lot, and the result is listed below:the proportion of classified correctly is about 0.8639;the average matching score is about 0.6580;
+4. I am trying to finish experiments when adding emails, not finished, will update the result when finished;
+
 1.30
 Work I have done:
 1. Almost all the processes which are used to identify matching records(personal customers) have been done, and after I remove "strange" address+line from homesub files, the performance of homesub has been improved a lot;
