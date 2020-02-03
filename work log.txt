@@ -1,6 +1,6 @@
 2.03
 Work I have done:
-1. I finished creating a new readable file based on the algorithm's results, and this is the result of the three files:
+1. I finished creating a new readable file based on the algorithm's results, and this is the result of the three files: (update when uploaded to google drive successfully)
 2. I did some experiments on run dudepe.io on only two files and on all the files, and it seems use dedupe.io is much easier and if the model the algorithm learned is reasonable, the time consumes is not long, and from the aspect of performance, running dedupe on all the files seems better;
 
 1.31
