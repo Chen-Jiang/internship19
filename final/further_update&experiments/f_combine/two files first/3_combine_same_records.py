@@ -30,7 +30,7 @@ def write_to_new_file(file):
     with open(output,'a') as out_file:
 
         # write the header of the file
-        fieldNames = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','eaddress','domain','phone_number','origin']
+        fieldNames = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','email','eaddress','domain','phone_number','origin']
         writer = csv.DictWriter(out_file, fieldnames=fieldNames, extrasaction='ignore')
         writer.writeheader()
 
@@ -118,7 +118,7 @@ def write_to_new_file(file):
 # the input is a dictionary, whose key is 0,1,2, the value is the whole record
 def combine_same_records(same_records):
 
-    fieldNames = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','eaddress','domain','phone_number','origin']
+    fieldNames = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','email','eaddress','domain','phone_number','origin']
     # print("more than one:",same_records)
     combined_dict = {}
 
