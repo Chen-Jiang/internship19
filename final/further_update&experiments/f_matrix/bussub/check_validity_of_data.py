@@ -73,32 +73,6 @@ def check_bus_columns(records_dict, fields):
             if 'accounts payable' in value:
                 # print("yes",value)
                 records_dict[item][fields[index[i]]] = None
-                # print(records_dict[item][fields[i]])
-
-    # # just check last_name field
-    # i = 2
-    # for item in records_dict:
-    #     ids = []
-    #     # get the last name value of this record
-    #     value = records_dict[item][fields[i]]
-    #     # get the unique_id of this record and save it to the ids list
-    #     id = records_dict[item][fields[0]]
-    #     ids.append(id)
-    #     if value != "null":
-    #         # create a dictionary, the key is the phone_number, the value is the id list,
-    #         # like {'0001283834':[01,02]}
-    #         if value not in lname_id_dict.keys():
-    #             lname_id_dict[value] = ids
-    #         else:
-    #             current_ids = lname_id_dict[value]
-    #             current_ids.extend(ids)
-    #             lname_id_dict[value] = current_ids
-    #
-    # for item in lname_id_dict:
-    #     ids = lname_id_dict[item]
-    #     if len(ids) >= 10:
-    #         for ele in ids:
-    #             records_dict[ele]['last_name'] = None
 
     return records_dict
 
