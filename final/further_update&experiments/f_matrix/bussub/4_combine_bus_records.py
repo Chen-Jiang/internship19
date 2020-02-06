@@ -1,10 +1,11 @@
 '''
 
-This is to combine same records based on the result of dedupe, all the records whose matching score is higher than 0.5
-will be combined as one record, others will not be combined
+This is to combine same records based on the result of dedupe, all the records whose matching score is higher than 0.5,will be combined as one record, others will not be combined
+and I also add a new column called 'company info' to make it easier to be seen or checked
+
 
 The input is the csvFormat_output.csv
-The output is the combined_result.csv
+The output is the final_bussub_result.csv
 
 '''
 
@@ -13,7 +14,7 @@ import csv
 from decimal import *
 
 input = "csvFormat_output.csv"
-output = "combined_bussub_result.csv"
+output = "final_bussub_result.csv"
 
 
 def write_to_new_file(file):
@@ -118,50 +119,5 @@ def write_to_new_file(file):
             print("finish time:", end3-end2)
 
     print("finished")
-
-
-# the input is a dictionary, whose key is 0,1,2, the value is the whole record
-def combine_same_records(same_records):
-
-    fieldNames = ['unique_id','first_name','last_name','address_line','suburb','city','country','postcode','eaddress','domain','phone_number','origin']
-    # print("more than one:",same_records)
-    combined_dict = {}
-
-    for i in range(len(fieldNames)):
-        field_values = []
-
-        for index in same_records:
-            # single_record_list = []
-            item = same_records[index]  # get the whole dictionary
-            value = item[fieldNames[i]]  # get the field value String type ('joshua dylan',) or ('8789670', '998364785')
-            if "(" in value:
-                value = value.strip("(").strip(")").strip(",")
-                if "," in value:
-                    tem_list = (value.split("\', \'"))  # need to remove '' later "" will added to every element automatically
-                    for item in tem_list:
-                        item = item.strip("\"").strip("\'")
-                        if item not in field_values and value != None and value != "":
-                            field_values.append(item)
-                else:
-                    if value.strip("\'") not in field_values and value.strip("\'") != None and value.strip("\'") != "":
-                        field_values.append(value.strip("\'"))
-            else:
-                # print(222)
-                # print("value",value)
-                if value not in field_values and value != "":
-                    # print(333)
-                    field_values.append(value)
-        # if the rows have several different values, keep these values inside a tuple,
-        # and add the tuple as the final value of this field
-        if len(field_values) > 0:
-            combined_dict[fieldNames[i]] = tuple(j for j in field_values)
-        # if the several value of this field is the same, the final value of this field is just one value
-        elif len(field_values) == 0:
-            combined_dict[fieldNames[i]] = None
-
-    return combined_dict
-
-
-
 
 write_to_new_file(input)
