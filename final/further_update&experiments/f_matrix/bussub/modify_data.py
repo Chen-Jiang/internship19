@@ -2,6 +2,7 @@
 
 This file is to modify data from homesub and bussub: in homesub, there are much data has accounts payable,
 which seems not a home user, so I put all these data to bussub
+After modification, the BUSSUB_output.csv will be extended, and the HOMESUB_output will be shortened
 
 Input is "HOMESUB_output.csv", which is come from 1_separate_matrix.py
 Output is a new "BUSSUB_output.csv"
