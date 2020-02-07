@@ -1,3 +1,8 @@
+2.07(last day of my internship)
+Work I have done:
+1. Tried some experiments on the business accounts, and I update the newest result and programs;
+2. Update all the files I've modified and also update the result;
+
 2.03
 Work I have done:
 1. I finished creating a new readable file based on the algorithm's results, and this is the result of the three files: (update when uploaded to google drive successfully)
