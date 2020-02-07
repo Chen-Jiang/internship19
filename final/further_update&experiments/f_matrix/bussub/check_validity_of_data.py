@@ -26,11 +26,11 @@ def check_home_columns(records_dict, fields):
 
     # just check address_line, phone_number field
     indexes = [3,11]
-    for item in records_dict:
-        for i in range(len(indexes)):
+    for i in indexes:
+        for item in records_dict:
             ids = []
-            # get the address, phone_number value of this record
-            value = records_dict[item][fields[indexes[i]]]
+            # get the phone_number value of this record
+            value = records_dict[item][fields[i]]
             # get the unique_id of this record and save it to the ids list
             id = records_dict[item][fields[0]]
             ids.append(id)
@@ -43,14 +43,15 @@ def check_home_columns(records_dict, fields):
                     current_ids = phone_id_dict[value]
                     current_ids.extend(ids)
                     phone_id_dict[value] = current_ids
-    for item in phone_id_dict:
-        ids = phone_id_dict[item]
-        if len(ids) >= 10:
-            for ele in ids:
-                records_dict[ele][fields[i]] = None
+
+        for item in phone_id_dict:
+            ids = phone_id_dict[item]
+            if len(ids) >= 10:
+                for ele in ids:
+                    records_dict[ele][fields[i]] = None
+
 
     return records_dict
-
 
 def check_bus_columns(records_dict, fields):
 
